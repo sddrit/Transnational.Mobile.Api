@@ -14,5 +14,8 @@ namespace TransnationalLanka.Rms.Mobile.Dal
         public DbSet<ItemStorage> ItemStorages { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<FieldDefinition> FieldDefinitions { get; set; }
+        public DbSet<UserMobile>  UserMobiles{ get; set; }
+        public DbSet<UserGeneral> UserGenerals { get; set; }
+        public DbSet<UserPassword> UserPasswords { get; set; }
     }
 }

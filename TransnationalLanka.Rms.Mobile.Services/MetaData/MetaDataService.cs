@@ -28,7 +28,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.MetaData
                 LatestAppVersion = "0.1"
 
             };
-
         }
     }
 }

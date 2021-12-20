@@ -2,8 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using TransnationalLanka.Rms.Mobile.Dal;
 using TransnationalLanka.Rms.Mobile.Services.Location;
 using TransnationalLanka.Rms.Mobile.Services.MetaData;
+using TransnationalLanka.Rms.Mobile.Services.User;
 using TransnationalLanka.Rms.Mobile.WebApi.Location;
 using TransnationalLanka.Rms.Mobile.WebApi.MetaData;
+using TransnationalLanka.Rms.Mobile.WebApi.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,8 @@ builder.Services.AddDbContext<RmsDbContext>(options =>
 //Add Project Services
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IMetaDataService, MetaDataService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,6 +36,7 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Contains(
 //Application Routes
 LocationRoutes.Register(app);
 MetaDataRoutes.Register(app);
+UserRoutes.Register(app);
 
 app.UseHttpsRedirection();
 
