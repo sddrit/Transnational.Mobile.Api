@@ -1,4 +1,5 @@
-﻿using TransnationalLanka.Rms.Mobile.Core.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
+using TransnationalLanka.Rms.Mobile.Core.Exceptions;
 using TransnationalLanka.Rms.Mobile.Dal;
 
 namespace TransnationalLanka.Rms.Mobile.Services.User
@@ -45,6 +46,17 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
 
         public List<Dal.Entities.User> GetUsers()
         {
+
+            var test = _context.Users
+                .Include(u => u.UserPasswords)
+                .Where(u => u.Active && u.Roles.Any(r =>
+                    r.Role.Active && (r.Role.Description == "Mobile User" || r.Role.Description == "Mobile Manager")))
+                .OrderBy(u => u.Id)
+                .Select(u => new
+                {
+                    PasswordHash = u.UserPasswords.First().PasswordHash
+                });
+
             var users = (
                 from UM in _context.UserMobiles
                 join UG in _context.UserGenerals on UM.UserId equals UG.UserId           

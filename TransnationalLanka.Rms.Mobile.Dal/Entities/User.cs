@@ -1,15 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 {
-   
+
     public class User
     {
         [Key]
@@ -26,9 +21,39 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
                
         public byte[] PasswordHash { get; set; }
         
-        public byte[] PasswordSalt { get; set; }     
-       
+        public byte[] PasswordSalt { get; set; }
 
+        public virtual List<UserRole> Roles { get; set; }
+        public virtual List<UserPassword> UserPasswords { get; set; }
+        
+    }
+
+    [Table("UserRole")]
+    public class UserRole
+    {
+        [Column("userId")]
+        public int UserId { get; set; }
+
+        public virtual User User { get; set; }
+
+        [Column("roleId")]
+        public int RoleId { get; set; }
+
+        public virtual Role Role { get; set; }
+    }
+
+    [Table("Role")]
+    public class Role
+    {
+        [Column("id")]
+        public int Id { get; set; }
+
+        [Column("description")]
+
+        public string Description { get; set; }
+
+        [Column("active")]
+        public bool Active { get; set; }
     }
 
 
@@ -45,10 +70,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
         [Column("userType")]
         public string UserType { get; set; }
 
-       
         public int UserId { get { return Convert.ToInt32(UserName); } set { } }
-
-
     }
 
     [Table("User")]

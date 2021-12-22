@@ -18,6 +18,8 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
         [Column("userId")]
         public int? UserId { get; set; }
 
+        public virtual User User { get; set; }
+
         [Column("passwordHash")]
         public byte[]? PasswordHash { get; set; }
 
