@@ -1,9 +1,11 @@
-﻿using TransnationalLanka.Rms.Mobile.Core.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
+using TransnationalLanka.Rms.Mobile.Core.Exceptions;
 using TransnationalLanka.Rms.Mobile.Dal;
+using TransnationalLanka.Rms.Mobile.Services.User.Core;
 
 namespace TransnationalLanka.Rms.Mobile.Services.User
 {
-    public class UserService:IUserService
+    public class UserService : IUserService
     {
         private readonly RmsDbContext _context;
 
@@ -12,59 +14,68 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
             _context = context;
         }
 
-        public Dal.Entities.User GetUserById(string userName)
+        public async Task<UserDto> GetUsersByUserName(string userName)
         {
+            int userId;
 
-            var mobileUser = _context.UserMobiles.Where(x => x.UserName == userName).FirstOrDefault();
+            int.TryParse(userName, out userId);
 
-            if (mobileUser == null)
+            var user = await _context.Users
+                   .Include(u => u.UserPasswords)
+                   .Where(u => u.UserId == userId
+                                 && u.Active
+                                 && u.UserRoles.Any(r => r.Role.Active
+                                 && (r.Role.Description == "Mobile User" || r.Role.Description == "Mobile Manager")
+                                 && r.Role.Active)
+                         )
+                   .OrderBy(u => u.UserId)
+                   .Select(u => new UserDto
+                   {
+                       Id = u.UserId,
+                       FullName = u.UserFullName,
+                       UserName = u.UserName,
+                       Active = u.Active,
+                       PasswordSalt = u.UserPasswords.First().PasswordSalt,
+                       PasswordHash = u.UserPasswords.First().PasswordHash,
+                       Roles = u.UserRoles.Select(r => r.Role.Description).ToList()
+
+                   }).FirstOrDefaultAsync();
+
+            if (user == null)
             {
-                throw new ServiceException(string.Empty, $"Unable to find user by {userName}");
+
+                throw new ServiceException(string.Empty, $"Unable to find user by user name {userName}");
             }
 
-            var generalUser = _context.UserGenerals.Where(x => x.UserId == mobileUser.UserId
-                                                                && x.Deleted == false).FirstOrDefault();
-
-            var userPassword = _context.UserPasswords.Where(x => x.UserId == Convert.ToInt32(userName)).FirstOrDefault();
-
-
-            return new Dal.Entities.User()
-            {
-                UserName = mobileUser.UserName,
-                FullName = generalUser.FullName,
-                UserType = mobileUser.UserType,
-                Id = mobileUser.Id,
-                Active = generalUser.Active,
-                PasswordHash = userPassword.PasswordHash,
-                PasswordSalt = userPassword.PasswordSalt
-
-
-            };
+            return user;
         }
 
-
-        public List<Dal.Entities.User> GetUsers()
+        public List<UserDto> GetUsers()
         {
-            var users = (
-                from UM in _context.UserMobiles
-                join UG in _context.UserGenerals on UM.UserId equals UG.UserId           
+            var users = _context.Users
+                  .Include(u => u.UserPasswords)
+                  .Where(u => u.Active
+                                && u.UserRoles.Any(r => r.Role.Active
+                                && (r.Role.Description == "Mobile User" || r.Role.Description == "Mobile Manager")
+                                && r.Role.Active)
+                        )
+                  .OrderBy(u => u.UserId)
+                  .Select(u => new UserDto
+                  {
+                      Id = u.UserId,
+                      FullName = u.UserFullName,
+                      UserName = u.UserName,
+                      Active = u.Active,
+                      PasswordSalt = u.UserPasswords.First().PasswordSalt,
+                      PasswordHash = u.UserPasswords.First().PasswordHash,
+                      Roles = u.UserRoles.Select(r => r.Role.Description).ToList()
 
-                join UP in _context.UserPasswords on UM.UserId equals UP.UserId
-                
-
-                select new Dal.Entities.User
-                {
-                    UserName = UM.UserName,
-                    FullName = UG.FullName,
-                    UserType = UM.UserType,
-                    Id = UM.Id,
-                    Active = UG.Active,
-                    PasswordHash = UP.PasswordHash,
-                    PasswordSalt = UP.PasswordSalt
-
-                }).OrderBy(x => x.Id).ToList();
+                  }).ToList();
 
             return users;
         }
+
+
+
     }
 }

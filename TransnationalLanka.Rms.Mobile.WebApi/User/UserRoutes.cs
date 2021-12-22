@@ -8,18 +8,19 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.User
 
         public static void Register(WebApplication app)
         {
-            app.MapGet("/api/user/{userName}", GetByUserId)
-                .WithName("Get User By Id");
+            app.MapGet("/api/user/{userName}", GetByUserName)
+                .WithName("Get User By User Name");
 
             app.MapGet("/api/users", GetUsres)
                 .WithName("Get Users");
         }
 
-        public static async Task<IResult> GetByUserId([FromRoute] string userName,
+        public static async Task<IResult> GetByUserName([FromRoute] string userName,
             [FromServices] IUserService userService)
         {
-            var user = userService.GetUserById(userName);
+            var user =await userService.GetUsersByUserName(userName);
             return Results.Ok(user);
+            
         }
 
         public static IResult GetUsres([FromServices] IUserService userService)

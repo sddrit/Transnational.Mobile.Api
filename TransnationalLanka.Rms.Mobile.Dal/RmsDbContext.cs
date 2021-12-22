@@ -14,8 +14,17 @@ namespace TransnationalLanka.Rms.Mobile.Dal
         public DbSet<ItemStorage> ItemStorages { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<FieldDefinition> FieldDefinitions { get; set; }
-        public DbSet<UserMobile>  UserMobiles{ get; set; }
-        public DbSet<UserGeneral> UserGenerals { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<UserPassword> UserPasswords { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId });
+            });
+        }
     }
 }

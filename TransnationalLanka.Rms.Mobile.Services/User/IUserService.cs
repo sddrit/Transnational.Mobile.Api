@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TransnationalLanka.Rms.Mobile.Services.User.Core;
 
 namespace TransnationalLanka.Rms.Mobile.Services.User
 {
     public interface IUserService
     {
-        public List<Dal.Entities.User> GetUsers();
-        public Dal.Entities.User GetUserById(string userName);
+        public List<UserDto> GetUsers();
+        public Task<UserDto> GetUsersByUserName(string userName);
     }
 }
