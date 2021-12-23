@@ -36,8 +36,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
                 Id = location.Id,
                 Name = location.Name,
                 Type = location.Type
-
-
             };
         }
 
