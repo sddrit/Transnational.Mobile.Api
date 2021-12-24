@@ -1,5 +1,9 @@
+using System.Reflection;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TransnationalLanka.Rms.Mobile.Dal;
+using TransnationalLanka.Rms.Mobile.Services.Customer;
+using TransnationalLanka.Rms.Mobile.Services.Item;
 using TransnationalLanka.Rms.Mobile.Services.Location;
 using TransnationalLanka.Rms.Mobile.Services.MetaData;
 using TransnationalLanka.Rms.Mobile.Services.PickList;
@@ -17,9 +21,13 @@ builder.Services.AddDbContext<RmsDbContext>(options =>
 
 //Add Project Services
 builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IMetaDataService, MetaDataService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPickListService, PickListService>();
+
+builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

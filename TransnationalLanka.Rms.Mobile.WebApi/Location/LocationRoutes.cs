@@ -8,10 +8,10 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Location
     {
         public static void Register(WebApplication app)
         {
-            app.MapGet("/api/location/{code}", GetByCode)
+            app.MapGet("/v1/api/location/{code}", GetByCode)
                 .WithName("Get Location");
 
-            app.MapPost("/api/locationItem", AddLocationItem)
+            app.MapPost("/v1/api/locationItem", AddLocationItem)
                .WithName("Add Location Item");
         }
 
@@ -22,10 +22,10 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Location
             return Results.Ok(location);
         }
 
-        public static IResult AddLocationItem(List<LocationItemDto> locationItem,
+        public static async Task<IResult> AddLocationItem(List<LocationItemDto> locationItem,
            [FromServices] ILocationService locationService)
         {
-            var location =  locationService.AddLocationItem(locationItem);
+            var location =  await locationService.AddLocationItem(locationItem);
             return Results.Ok(location);
         }
     }

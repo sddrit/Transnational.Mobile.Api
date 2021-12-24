@@ -38,12 +38,10 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
                        PasswordSalt = u.UserPasswords.First().PasswordSalt,
                        PasswordHash = u.UserPasswords.First().PasswordHash,
                        Roles = u.UserRoles.Select(r => r.Role.Description).ToList()
-
                    }).FirstOrDefaultAsync();
 
             if (user == null)
             {
-
                 throw new ServiceException(string.Empty, $"Unable to find user by user name {userName}");
             }
 
@@ -69,7 +67,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
                       PasswordSalt = u.UserPasswords.First().PasswordSalt,
                       PasswordHash = u.UserPasswords.First().PasswordHash,
                       Roles = u.UserRoles.Select(r => r.Role.Description).ToList()
-
                   }).ToList();
 
             return users;

@@ -5,6 +5,5 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location;
 public interface ILocationService
 {
     Task<LocationDto> GetLocationByCode(string code);
-
-    bool AddLocationItem(List<LocationItemDto> locationItems);
+    Task<List<AddLocationResult>> AddLocationItem(List<LocationItemDto> locationItems);
 }

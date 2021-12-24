@@ -1,9 +1,12 @@
 ﻿using GuardNet;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TransnationalLanka.Rms.Mobile.Core.Exceptions;
 using TransnationalLanka.Rms.Mobile.Core.Extensions;
 using TransnationalLanka.Rms.Mobile.Dal;
 using TransnationalLanka.Rms.Mobile.Dal.Entities;
+using TransnationalLanka.Rms.Mobile.Services.Customer.Core.Request;
+using TransnationalLanka.Rms.Mobile.Services.Item.Core.Request;
 using TransnationalLanka.Rms.Mobile.Services.Location.Core;
 
 namespace TransnationalLanka.Rms.Mobile.Services.Location
@@ -11,10 +14,12 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
     public class LocationService : ILocationService
     {
         private readonly RmsDbContext _context;
+        private readonly IMediator _mediator;
 
-        public LocationService(RmsDbContext context)
+        public LocationService(RmsDbContext context, IMediator mediator)
         {
             _context = context;
+            _mediator = mediator;
         }
 
         public async Task<LocationDto> GetLocationByCode(string code)
@@ -39,51 +44,66 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
             };
         }
 
-
-        public bool AddLocationItem(List<LocationItemDto> locationItems)
+        public async Task<List<AddLocationResult>> AddLocationItem(List<LocationItemDto> locationItems)
         {
+            var result = new List<AddLocationResult>();
 
             foreach (var locationItem in locationItems)
             {
-                Guard.NotNullOrEmpty("BarCode", nameof(locationItem.BarCode));
-                Guard.NotNullOrEmpty("Location Code", nameof(locationItem.LocationCode));
-                Guard.NotNullOrEmpty("Scanned DateTime", nameof(locationItem.ScannedDateTime));
-
-                int cartonNo;
-                bool isNumeric = int.TryParse(locationItem.BarCode, out cartonNo);
-
-                var itemStorage = _context.ItemStorages.Where(x => x.CartonNo == cartonNo).FirstOrDefault();
-
-                var customerCode = itemStorage != null ? _context.Customers.Where(x => x.TrackingId == itemStorage.CustomerId).FirstOrDefault().CustomerCode : "0";
-
-                var item = new LocationItem()
+                try
                 {
+                    Guard.NotNullOrEmpty("BarCode", nameof(locationItem.BarCode));
+                    Guard.NotNullOrEmpty("Location Code", nameof(locationItem.LocationCode));
+                    Guard.NotNullOrEmpty("Scanned DateTime", nameof(locationItem.ScannedDateTime));
 
-                    CartonNo = isNumeric ? cartonNo : 0,
-                    BarCode = locationItem.BarCode,
-                    LocationCode = locationItem.LocationCode,
-                    ScanDateTime = locationItem.ScannedDateTime,
-                    StorageType = locationItem.StorageType,
-                    IsFromMobile = true,                   
-                    ScannedDateInt =locationItem.ScannedDateTime.DateToInt(),
-                    CreatedDate = System.DateTime.Now,                    
-                    CreatedUserName = locationItem.ScannedUserName,
-                    LuDate = System.DateTime.Now,
-                    LuUserId =0,
-                    CustomerId = Convert.ToInt32(customerCode)
-                };
+                    var cartonNo = int.Parse(locationItem.BarCode);
+                    var customerCode = "0";
+                    ItemStorage itemStorage = null;
 
-                _context.LocationItems.Add(item);
-
-                //-----Check for latest uploads exist in carton location table
-
-                var countLatestScans = _context.LocationItems.Where(x => x.ScanDateTime >= locationItem.ScannedDateTime 
-                                                                    && x.BarCode.Trim() == locationItem.BarCode.Trim()).Count();
-
-                if (countLatestScans == 0)
-                {
+                    try
+                    {
+                        itemStorage = await _mediator.Send(new GetItemByBarCodeRequest()
+                        {
+                            CartonNo = cartonNo
+                        });
+                    }
+                    catch (ServiceException)
+                    {
+                        //If carton is not exists in inventory
+                        cartonNo = 0;
+                    }
 
                     if (itemStorage != null)
+                    {
+                        var customer = await _mediator.Send(new GetCustomerByIdRequest()
+                        {
+                            CustomerCode = itemStorage.CustomerId
+                        });
+
+                        customerCode = customer.CustomerCode;
+                    }
+
+                    var item = new LocationItem()
+                    {
+                        CartonNo = cartonNo,
+                        BarCode = locationItem.BarCode,
+                        LocationCode = locationItem.LocationCode,
+                        ScanDateTime = locationItem.ScannedDateTime,
+                        StorageType = locationItem.StorageType,
+                        IsFromMobile = true,
+                        ScannedDateInt = locationItem.ScannedDateTime.DateToInt(),
+                        CreatedDate = System.DateTime.Now,
+                        CreatedUserName = locationItem.ScannedUserName,
+                        LuDate = System.DateTime.Now,
+                        LuUserId = 0,
+                        CustomerId = Convert.ToInt32(customerCode)
+                    };
+
+                    var isLatestRecord = await _context.LocationItems.AllAsync(x =>
+                        x.ScanDateTime < locationItem.ScannedDateTime
+                        && x.BarCode.Trim() == locationItem.BarCode.Trim());
+
+                    if (isLatestRecord && itemStorage != null)
                     {
                         itemStorage.LocationCode = locationItem.LocationCode;
                         itemStorage.LastScannedDateTime = locationItem.ScannedDateTime;
@@ -91,15 +111,28 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
                         itemStorage.LastUpdateDate = System.DateTime.Now.DateToInt();
                         _context.Entry(itemStorage).State = EntityState.Modified;
                     }
+
+                    _context.LocationItems.Add(item);
+
+                    await _context.SaveChangesAsync();
+
+                    result.Add(new AddLocationResult()
+                    {
+                        Barcode = locationItem.BarCode,
+                        Success = true
+                    });
                 }
-                //------------------------------------------------------------------------              
-
-                _context.SaveChanges();
+                catch (Exception e)
+                {
+                    result.Add(new AddLocationResult()
+                    {
+                        Barcode = locationItem.BarCode,
+                        Success = false,
+                        Error = e.Message
+                    });
+                }
             }
-
-            return true;
-
-
+            return result;
         }
     }
 }
