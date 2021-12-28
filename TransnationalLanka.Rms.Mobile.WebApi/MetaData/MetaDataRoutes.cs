@@ -7,7 +7,7 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.MetaData
     {
         public static void Register(WebApplication app)
         {
-            app.MapGet("/api/metadata", GetMetaData)
+            app.MapGet("/v1/api/metadata", GetMetaData)
                 .WithName("Get Meta Data");
 
         }

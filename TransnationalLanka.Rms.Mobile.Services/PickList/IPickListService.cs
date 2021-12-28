@@ -6,6 +6,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
     {
         public  List<Dal.Entities.PickList> GetPickLists(string deviceId);
 
-        public bool UpdatePickStatus(List<PickListDto> pickListItems);
+        public Task<bool> UpdatePickStatus(List<PickListDto> pickListItems);
     }
 }

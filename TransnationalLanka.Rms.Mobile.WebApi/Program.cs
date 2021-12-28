@@ -6,10 +6,13 @@ using TransnationalLanka.Rms.Mobile.Services.Customer;
 using TransnationalLanka.Rms.Mobile.Services.Item;
 using TransnationalLanka.Rms.Mobile.Services.Location;
 using TransnationalLanka.Rms.Mobile.Services.MetaData;
+using TransnationalLanka.Rms.Mobile.Services.MobileDevice;
 using TransnationalLanka.Rms.Mobile.Services.PickList;
+using TransnationalLanka.Rms.Mobile.Services.RequestDetail;
 using TransnationalLanka.Rms.Mobile.Services.User;
 using TransnationalLanka.Rms.Mobile.WebApi.Location;
 using TransnationalLanka.Rms.Mobile.WebApi.MetaData;
+using TransnationalLanka.Rms.Mobile.WebApi.MobileDevice;
 using TransnationalLanka.Rms.Mobile.WebApi.PickList;
 using TransnationalLanka.Rms.Mobile.WebApi.User;
 
@@ -25,7 +28,10 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IMetaDataService, MetaDataService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRequestDetailService, RequestDetailService>();
 builder.Services.AddScoped<IPickListService, PickListService>();
+builder.Services.AddScoped<IMobileDeviceService, MobileDeviceService>();
+
 
 builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -47,7 +53,8 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Contains(
 LocationRoutes.Register(app);
 MetaDataRoutes.Register(app);
 UserRoutes.Register(app);
-PickListRoute.Register(app);
+PickListRoutes.Register(app);
+MobileDeviceRoutes.Register(app);
 
 app.UseHttpsRedirection();
 

@@ -19,6 +19,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<UserPassword> UserPasswords { get; set; }
         public DbSet<PickList> PickLists { get; set; }
+        public DbSet<MobileDevice> MobileDevices { get; set; }
         public DbSet<RequestDetail> RequestDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

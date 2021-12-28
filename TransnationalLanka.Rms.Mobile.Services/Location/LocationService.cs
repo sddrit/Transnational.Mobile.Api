@@ -99,11 +99,11 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
                         CustomerId = Convert.ToInt32(customerCode)
                     };
 
-                    var isLatestRecord = await _context.LocationItems.AllAsync(x =>
-                        x.ScanDateTime < locationItem.ScannedDateTime
-                        && x.BarCode.Trim() == locationItem.BarCode.Trim());
+                    int isLatestRecordCount =  _context.LocationItems.Where(x =>
+                        x.ScanDateTime> locationItem.ScannedDateTime
+                        && x.BarCode.Trim() == locationItem.BarCode.Trim()).Count();
 
-                    if (isLatestRecord && itemStorage != null)
+                    if (isLatestRecordCount==0 && itemStorage != null)
                     {
                         itemStorage.LocationCode = locationItem.LocationCode;
                         itemStorage.LastScannedDateTime = locationItem.ScannedDateTime;
