@@ -12,13 +12,13 @@ namespace TransnationalLanka.Rms.Mobile.Services.MobileDevice
             _context = context;
         }
 
-        public Dal.Entities.MobileDevice GetMobielDevices(string deviceId)
+        public Dal.Entities.MobileDevice GetMobielDevices(string deviceUniqueId)
         {   
-            var mobileDevice= _context.MobileDevices.Where(m=>m.Code.ToLower()==deviceId.ToLower()).FirstOrDefault();   
+            var mobileDevice= _context.MobileDevices.Where(m=>m.DeviceUniqueId.ToLower()== deviceUniqueId.ToLower()).FirstOrDefault();   
 
             if (mobileDevice == null)
             {
-                throw new ServiceException(string.Empty, $"Unable to find device by id {deviceId}");
+                throw new ServiceException(string.Empty, $"Unable to find device by id {deviceUniqueId}");
             }
             
             return mobileDevice;

@@ -7,14 +7,14 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.MobileDevice
     {
         public static void Register(WebApplication app)
         {
-            app.MapGet("/v1/api/mobileDevice/{deviceId}", GetMobileDevices)
+            app.MapGet("/v1/api/mobileDevice/{deviceUniqueId}", GetMobileDevices)
                 .WithName("Get Mobile Device");
 
         }
 
-        public static IResult GetMobileDevices([FromRoute] string deviceId, [FromServices] IMobileDeviceService mobileDataService)
+        public static IResult GetMobileDevices([FromRoute] string deviceUniqueId, [FromServices] IMobileDeviceService mobileDataService)
         {
-            var mobileDevice = mobileDataService.GetMobielDevices(deviceId);
+            var mobileDevice = mobileDataService.GetMobielDevices(deviceUniqueId);
             return Results.Ok(mobileDevice);
         }
     }

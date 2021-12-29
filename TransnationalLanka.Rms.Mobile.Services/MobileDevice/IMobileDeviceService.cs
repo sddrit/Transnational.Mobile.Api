@@ -8,6 +8,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.MobileDevice
 {
     public interface IMobileDeviceService
     {
-        public Dal.Entities.MobileDevice GetMobielDevices(string deviceId);
+        public Dal.Entities.MobileDevice GetMobielDevices(string deviceUniqueId);
     }
 }

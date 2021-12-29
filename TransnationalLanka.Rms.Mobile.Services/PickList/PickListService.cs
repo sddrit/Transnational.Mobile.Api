@@ -18,19 +18,33 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
             _mediator = mediator;
         }
 
-        public List<Dal.Entities.PickList> GetPickLists(string deviceId)
+        public List<PickListDto> GetPickLists(string deviceId)
         {
-          return _context.PickLists.Where(p => p.LastSentDeviceId.ToLower() == deviceId.ToLower() && p.IsPicked==false).ToList(); 
-            
+            var pickList = _context.PickLists.Where(p => p.LastSentDeviceId.ToLower() == deviceId.ToLower() && p.IsPicked == false && p.Deleted == false).
+                  Select(p => new PickListDto()
+                  {
+                      AssignedUserId = p.AssignedUserId,
+                      Barcode = p.Barcode,
+                      CartonNo = p.CartonNo,
+                      LocationCode = p.LocationCode,
+                      PickListNo = p.PickListNo,
+                      RequestNo = p.RequestNo,
+                      Status = p.Status,
+                      TrackingId = p.TrackingId,
+                      WareHouseCode = p.WareHouseCode
+                  }).ToList();
+
+            return pickList;
+
         }
 
-        public async Task<bool> UpdatePickStatus(List<PickListDto> pickListItems)
+        public async Task<bool> UpdatePickStatus(List<PickListInsertDto> pickListItems)
         {
             var result = new List<AddPickListResult>();
 
             foreach (var pickListItem in pickListItems)
             {
-                var pickList = _context.PickLists.Where(x => x.PickListNo == pickListItem.PickListNo && x.CartonNo == pickListItem.CartonNo && x.IsPicked==false).FirstOrDefault();
+                var pickList = _context.PickLists.Where(x => x.PickListNo == pickListItem.PickListNo && x.CartonNo == pickListItem.CartonNo && x.IsPicked == false ).FirstOrDefault();
 
                 try
                 {
@@ -77,7 +91,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
                         });
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     result.Add(new AddPickListResult()
                     {
@@ -92,6 +106,45 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
 
             return true;
 
+        }
+
+        public async Task<bool> MarkAsDeletedFromDevice(List<PickListMarkDeleteDto> pickListMarkDeleteDtos)
+        {
+
+            var result = new List<MarkDeletedFromDeviceResult>();
+
+            foreach (var pickListMarkDeleteDtoItem in pickListMarkDeleteDtos)
+            {
+
+                var pickList = await _context.PickLists.Where(p => p.TrackingId == pickListMarkDeleteDtoItem.TrackingId).FirstOrDefaultAsync();
+                try
+                {
+                    if (pickList != null)
+                    {
+                        pickList.Deleted = true;
+                        _context.Entry(pickList).State = EntityState.Modified;
+
+                        _context.SaveChanges();
+
+                        result.Add(new MarkDeletedFromDeviceResult()
+                        {
+                            TrackingId = pickListMarkDeleteDtoItem.TrackingId,
+                            Success = true
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    result.Add(new MarkDeletedFromDeviceResult()
+                    {
+                        TrackingId = pickListMarkDeleteDtoItem.TrackingId,
+                        Success = false,
+                        Error = ex.Message
+                    });
+                }
+            }
+            return true;
 
         }
 

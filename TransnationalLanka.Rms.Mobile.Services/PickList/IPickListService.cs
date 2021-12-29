@@ -4,8 +4,10 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
 {
     public  interface IPickListService
     {
-        public  List<Dal.Entities.PickList> GetPickLists(string deviceId);
+        public  List<PickListDto> GetPickLists(string deviceId);
 
-        public Task<bool> UpdatePickStatus(List<PickListDto> pickListItems);
+        public Task<bool> UpdatePickStatus(List<PickListInsertDto> pickListItems);
+
+        public Task<bool> MarkAsDeletedFromDevice(List<PickListMarkDeleteDto> pickListMarkDeleteDtos);
     }
 }

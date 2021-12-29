@@ -15,6 +15,9 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.PickList
 
             app.MapPost("/v1/api/pickList", UpdatePickedStatus)
                .WithName("Update Picked Items");
+
+            app.MapPost("/v1/api/pickList/markAsDeletedFromDevice", MarkAsDeleteFromDevice)
+              .WithName("Mark As Delete From Device");
         }
 
         public static  IResult GetPickListByDeviceId([FromRoute] string deviceId,
@@ -25,10 +28,17 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.PickList
 
         }
 
-        public static async Task<IResult> UpdatePickedStatus(List<PickListDto> pickListItem,
+        public static async Task<IResult> UpdatePickedStatus(List<PickListInsertDto> pickListItem,
           [FromServices] IPickListService pickListService)
         {
             var pickListItems = await pickListService.UpdatePickStatus(pickListItem);
+            return Results.Ok(pickListItems);
+        }
+
+        public static async Task<IResult> MarkAsDeleteFromDevice(List<PickListMarkDeleteDto> pickListItem,
+        [FromServices] IPickListService pickListService)
+        {
+            var pickListItems = await pickListService.MarkAsDeletedFromDevice(pickListItem);
             return Results.Ok(pickListItems);
         }
     }
