@@ -17,9 +17,9 @@ namespace TransnationalLanka.Rms.Mobile.Services.User.Core
 
         public bool Active { get; set; }
 
-        public byte[] PasswordHash { get; set; }
+        public string PasswordHash { get; set; }
 
-        public byte[] PasswordSalt { get; set; }
+        public string PasswordSalt { get; set; }
 
         public List<string> Roles { get; set; }
     }

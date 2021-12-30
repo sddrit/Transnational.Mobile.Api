@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text;
 using TransnationalLanka.Rms.Mobile.Core.Exceptions;
 using TransnationalLanka.Rms.Mobile.Dal;
 using TransnationalLanka.Rms.Mobile.Services.User.Core;
@@ -35,8 +36,8 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
                        FullName = u.UserFullName,
                        UserName = u.UserName,
                        Active = u.Active,
-                       PasswordSalt = u.UserPasswords.First().PasswordSalt,
-                       PasswordHash = u.UserPasswords.First().PasswordHash,
+                       PasswordSalt = ByteArrayToString(u.UserPasswords.First().PasswordSalt),
+                       PasswordHash = ByteArrayToString( u.UserPasswords.First().PasswordHash),
                        Roles = u.UserRoles.Select(r => r.Role.Description).ToList()
                    }).FirstOrDefaultAsync();
 
@@ -64,15 +65,21 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
                       FullName = u.UserFullName,
                       UserName = u.UserName,
                       Active = u.Active,
-                      PasswordSalt = u.UserPasswords.First().PasswordSalt,
-                      PasswordHash = u.UserPasswords.First().PasswordHash,
+                      PasswordSalt = ByteArrayToString(u.UserPasswords.First().PasswordSalt),
+                      PasswordHash = ByteArrayToString(u.UserPasswords.First().PasswordHash),
                       Roles = u.UserRoles.Select(r => r.Role.Description).ToList()
                   }).ToList();
 
             return users;
         }
 
-
+        private static string ByteArrayToString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
+        }
 
     }
 }
