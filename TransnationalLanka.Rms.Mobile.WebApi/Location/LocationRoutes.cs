@@ -11,11 +11,17 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Location
             app.MapGet("/v1/api/location/{code}", GetByCode)
                 .WithName("Get Location");
 
+            app.MapGet("/v1/api/locationSummaryByUser/{userName}", GetScanBySummary)
+               .WithName("Get Location Summary by User");
+
+            app.MapGet("/v1/api/locationDetailByUser/{userName}/{dateUtc}", GetScanByDetail)
+            .WithName("Get Location Details by User");
+
             app.MapPost("/v1/api/locationItem", AddLocationItem)
                .WithName("Add Location Item");
         }
 
-        public static async Task<IResult> GetByCode([FromRoute]string code, 
+        public static async Task<IResult> GetByCode([FromRoute] string code,
             [FromServices] ILocationService locationService)
         {
             var location = await locationService.GetLocationByCode(code);
@@ -25,8 +31,22 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Location
         public static async Task<IResult> AddLocationItem(List<LocationItemDto> locationItem,
            [FromServices] ILocationService locationService)
         {
-            var location =  await locationService.AddLocationItem(locationItem);
+            var location = await locationService.AddLocationItem(locationItem);
             return Results.Ok(location);
+        }
+
+        public static IResult GetScanBySummary([FromRoute] string userName,
+            [FromServices] ILocationService locationService)
+        {
+            var locationSummary = locationService.GetScanBySummary(userName);
+            return Results.Ok(locationSummary);
+        }
+
+        public static IResult GetScanByDetail([FromRoute] string userName, DateTime dateUtc,
+           [FromServices] ILocationService locationService)
+        {
+            var locationDetail = locationService.GetScanByDetail(userName, dateUtc);
+            return Results.Ok(locationDetail);
         }
     }
 }

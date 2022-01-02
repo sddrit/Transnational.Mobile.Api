@@ -8,6 +8,7 @@ using TransnationalLanka.Rms.Mobile.Dal.Entities;
 using TransnationalLanka.Rms.Mobile.Services.Customer.Core.Request;
 using TransnationalLanka.Rms.Mobile.Services.Item.Core.Request;
 using TransnationalLanka.Rms.Mobile.Services.Location.Core;
+using TransnationalLanka.Rms.Mobile.Services.Util.DateTimeUtil;
 
 namespace TransnationalLanka.Rms.Mobile.Services.Location
 {
@@ -88,7 +89,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
                         CartonNo = cartonNo,
                         BarCode = locationItem.BarCode,
                         LocationCode = locationItem.LocationCode,
-                        ScanDateTime = locationItem.ScannedDateTime,
+                        ScanDateTime = locationItem.ScannedDateTime.ConvertToLK(),
                         StorageType = locationItem.StorageType,
                         IsFromMobile = true,
                         ScannedDateInt = locationItem.ScannedDateTime.DateToInt(),
@@ -99,14 +100,14 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
                         CustomerId = Convert.ToInt32(customerCode)
                     };
 
-                    int isLatestRecordCount =  _context.LocationItems.Where(x =>
-                        x.ScanDateTime> locationItem.ScannedDateTime
-                        && x.BarCode.Trim() == locationItem.BarCode.Trim()).Count();
+                    int isLatestRecordCount = _context.LocationItems.Where(x =>
+                       x.ScanDateTime > locationItem.ScannedDateTime
+                       && x.BarCode.Trim() == locationItem.BarCode.Trim()).Count();
 
-                    if (isLatestRecordCount==0 && itemStorage != null)
+                    if (isLatestRecordCount == 0 && itemStorage != null)
                     {
                         itemStorage.LocationCode = locationItem.LocationCode;
-                        itemStorage.LastScannedDateTime = locationItem.ScannedDateTime;
+                        itemStorage.LastScannedDateTime = locationItem.ScannedDateTime.ConvertToLK();
                         itemStorage.LastScannedUserName = locationItem.ScannedUserName;
                         itemStorage.LastUpdateDate = System.DateTime.Now.DateToInt();
                         _context.Entry(itemStorage).State = EntityState.Modified;
@@ -133,6 +134,41 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
                 }
             }
             return result;
+        }
+
+        public List<LocationItemDetailDto> GetScanBySummary(string userName)
+        {
+            var startDate = DateTime.Now.Date.AddHours(Converter.hours).AddMinutes(Converter.minutes).AddDays(-7);
+            var endDate = System.DateTime.Now.Date.AddDays(1).AddHours(Converter.hours).AddMinutes(Converter.minutes);
+
+            var locationItem =
+                _context.LocationItems.Where(l => l.CreatedUserName.ToLower() == userName.ToLower() && l.ScanDateTime != null && (l.ScanDateTime.Value.AddHours(Converter.hours).AddMinutes(Converter.minutes) >= startDate && l.ScanDateTime.Value.AddHours(Converter.hours).AddMinutes(Converter.minutes) <= endDate))
+                .GroupBy(item => item.ScanDateTime.Value.Date).Select(item => new LocationItemDetailDto()
+                {
+                    ScanDate = item.Key,
+                    CartonCount = item.Distinct().Count()
+
+                }).ToList();
+
+            return locationItem;
+        }
+
+
+        public List<LocationItemViewDto> GetScanByDetail(string userName, DateTime dtUtc)
+        {
+            var locationItem =
+                _context.LocationItems
+                .Where(l => l.CreatedUserName.ToLower() == userName.ToLower() &&
+                l.ScanDateTime != null && l.ScanDateTime.Value.Date== dtUtc.ConvertToLK().Date)
+                .Select(item => new LocationItemViewDto()
+                {
+                    BarCode = item.BarCode,
+                    LocationCode = item.LocationCode,
+                    ScannedDateTime = item.ScanDateTime.Value.ConvertToUtc()
+
+                }).Distinct().ToList();
+
+            return locationItem;
         }
     }
 }

@@ -26,7 +26,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
                    .Where(u => u.UserId == userId
                                  && u.Active
                                  && u.UserRoles.Any(r => r.Role.Active
-                                 && (r.Role.Description == "Mobile User" || r.Role.Description == "Mobile Manager")
+                                 && (r.Role.Description == "Mobile User" || r.Role.Description == "Mobile Manager" || r.Role.Description=="Security")
                                  && r.Role.Active)
                          )
                    .OrderBy(u => u.UserId)

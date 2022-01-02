@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace TransnationalLanka.Rms.Mobile.Services.Location.Core
 {
-    public class LocationItemDto
+    public class LocationItemViewDto
     {
         public string BarCode { get; set; }
-        public string LocationCode { get; set; }
-        public string StorageType { get; set; }
-        public string ScannedUserName { get; set; }
+        public string LocationCode { get; set; }     
         public DateTime ScannedDateTime { get; set; }
     }
 }

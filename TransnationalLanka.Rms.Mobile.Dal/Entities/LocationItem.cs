@@ -39,7 +39,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 
         [Column("scanDateTime")]
         [MaxLength(50)]
-        public DateTime ScanDateTime { get; set; }
+        public DateTime? ScanDateTime { get; set; }
         
         [Column("createdUserId")]
         public string CreatedUserName { get; set; }
@@ -52,5 +52,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 
         [Column("luDate", TypeName = "datetime")]
         public DateTime? LuDate { get; set; }
+
+    
     }
 }
