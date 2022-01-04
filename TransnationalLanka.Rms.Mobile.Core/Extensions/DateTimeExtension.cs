@@ -14,7 +14,7 @@ namespace TransnationalLanka.Rms.Mobile.Core.Extensions
             return Convert.ToInt32(date.ToString("yyyyMMdd"));
 
         }
-        public static DateTime IntToDate(this long date)
+        public static DateTime IntToDate(this int date)
         {
             if (DateTime.TryParseExact(date.ToString(), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
                 return dt.ToLocalTime();

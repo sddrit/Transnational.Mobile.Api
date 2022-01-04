@@ -11,7 +11,7 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Request
             app.MapGet("/v1/api/request/{requestNo}/{userName}", GetDocket)
                 .WithName("Get docket");
 
-            app.MapGet("/v1/api/request/search/{requestNo}/{customerName}", SearchRequest)
+            app.MapGet("/v1/api/request/search/{requestNo}/{customerName}/{pageIndex}/{pageSize}", SearchRequest)
                 .WithName("Search request");
 
             app.MapGet("/v1/api/request/validate/{requestNo}/{cartonNo}", ValidateCartonsInRequest)
@@ -30,10 +30,10 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Request
 
         }
 
-        public static async Task<IResult> SearchRequest([FromRoute] string requestNo, string customerName,
+        public static async Task<IResult> SearchRequest([FromRoute] string requestNo, string customerName,int pageIndex, int pageSize,
         [FromServices] IRequestService requestService)
         {
-            var request = await requestService.SearchRequestHeader(requestNo, customerName);
+            var request = await requestService.SearchRequestHeader(requestNo, customerName, pageIndex, pageSize);
             return Results.Ok(request);
 
         }

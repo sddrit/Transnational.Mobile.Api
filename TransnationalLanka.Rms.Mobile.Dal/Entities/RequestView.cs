@@ -120,5 +120,8 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 
         [Column("Last Confirmed Date")]
         public int? LastConfirmedDate { get; set; }
+        
+        [Column("isDigitallySigned")]
+        public bool? IsDigitallySigned { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using TransnationalLanka.Rms.Mobile.Core.Exceptions;
 using TransnationalLanka.Rms.Mobile.Core.Extensions;
 using TransnationalLanka.Rms.Mobile.Dal;
 using TransnationalLanka.Rms.Mobile.Dal.Entities;
+using TransnationalLanka.Rms.Mobile.Dal.Helper;
 using TransnationalLanka.Rms.Mobile.Services.Request.Core;
 
 namespace TransnationalLanka.Rms.Mobile.Services.Request
@@ -59,11 +60,38 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
         }
 
         //need to add searching and paging.
-        public async Task<List<RequestView>> SearchRequestHeader(string requestNo, string customerName)
+        public async Task<PagedResponse<SearchRequestResult>> SearchRequestHeader(string requestNo, string customerName, int pageIndex, int pageSize)
         {
-            var requestHeaders = await _context.RequestViews.Where(r => r.RequestNo.Contains(requestNo) && r.Name.Contains(customerName)).ToListAsync();
-            return requestHeaders;
+            var requestHeaders = await _context.RequestViews.Where(r => r.RequestNo.Contains(requestNo) || r.Name.Contains(customerName))
+                    .Skip((pageIndex - 1) * pageSize).Take(pageSize)
+                    .ToListAsync();
 
+            var count = _context.RequestViews.Where(r => r.RequestNo.Contains(requestNo) || r.Name.Contains(customerName)).Count();
+
+            var result = requestHeaders.Select(r => new SearchRequestResult
+            {
+                RequestNo = r.RequestNo,
+                DeliveryDate = r.DeliveryDate.Value.IntToDate(),
+                Name = r.Name,
+                IsDigitallySigned = r.IsDigitallySigned == null ? false : r.IsDigitallySigned.Value
+
+            }).ToList();
+
+            var paginationResponse = new PagedResponse<SearchRequestResult>(result, pageIndex, pageSize, count);
+
+            if (paginationResponse == null)
+            {
+                throw new ServiceException(new ErrorMessage[]
+                {
+                     new ErrorMessage()
+                     {
+                            Code = string.Empty,
+                            Message = $"Unable to find requests"
+                     }
+                });
+            }
+
+            return paginationResponse;
         }
 
         //need to refactor sp call.
