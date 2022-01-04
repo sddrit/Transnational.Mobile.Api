@@ -32,7 +32,14 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
 
             if (location == null)
             {
-                throw new ServiceException(string.Empty, $"Unable to find location from code number {code}");
+                throw new ServiceException(new ErrorMessage[]
+                {
+                     new ErrorMessage()
+                     {
+                          Code = string.Empty,
+                         Message = $"Unable to find location from code number {code}"
+                     }
+                });
             }
 
             return new LocationDto()
@@ -159,7 +166,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
             var locationItem =
                 _context.LocationItems
                 .Where(l => l.CreatedUserName.ToLower() == userName.ToLower() &&
-                l.ScanDateTime != null && l.ScanDateTime.Value.Date== dtUtc.ConvertToLK().Date)
+                l.ScanDateTime != null && l.ScanDateTime.Value.Date == dtUtc.ConvertToLK().Date)
                 .Select(item => new LocationItemViewDto()
                 {
                     BarCode = item.BarCode,

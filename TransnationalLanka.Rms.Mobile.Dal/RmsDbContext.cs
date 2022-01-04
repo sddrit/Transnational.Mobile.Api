@@ -21,6 +21,14 @@ namespace TransnationalLanka.Rms.Mobile.Dal
         public DbSet<PickList> PickLists { get; set; }
         public DbSet<MobileDevice> MobileDevices { get; set; }
         public DbSet<RequestDetail> RequestDetails { get; set; }
+        public DbSet<RequestView> RequestViews { get; set; }
+        public DbSet<DocketEmptyDetail> DocketEmptyDetails { get; set; }
+        public DbSet<DocketDetail> DocketDetails { get; set; }
+        public DbSet<EmptyDocketPrintHeader> EmptyDocketPrintHeaders { get; set; }
+        public DbSet<DocketPrintSlice> DocketPrintSlices { get; set; }
+        public DbSet<ValidateCartonResult> ValidateCartonResults { get; set; }
+        public DbSet<RequestHeader> RequestHeaders { get; set; }
+        public DbSet<RequestSignatureImage> RequestSignatureImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +36,11 @@ namespace TransnationalLanka.Rms.Mobile.Dal
             {
                 entity.HasKey(e => new { e.UserId, e.RoleId });
             });
+
+        modelBuilder.Entity<DocketEmptyDetail>().HasNoKey();
+        modelBuilder.Entity<DocketDetail>().HasNoKey();
+        modelBuilder.Entity<ValidateCartonResult>().HasNoKey();
+
         }
     }
 }

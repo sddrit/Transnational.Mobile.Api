@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TransnationalLanka.Rms.Mobile.Services.RequestDetail.Core.Request
+namespace TransnationalLanka.Rms.Mobile.Services.Request.Core.Request
 {
     public class GetRequestByCartonRequest : IRequest<Dal.Entities.RequestDetail>
     {

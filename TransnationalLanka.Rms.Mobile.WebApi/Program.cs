@@ -1,4 +1,3 @@
-using System.Reflection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TransnationalLanka.Rms.Mobile.Dal;
@@ -8,12 +7,14 @@ using TransnationalLanka.Rms.Mobile.Services.Location;
 using TransnationalLanka.Rms.Mobile.Services.MetaData;
 using TransnationalLanka.Rms.Mobile.Services.MobileDevice;
 using TransnationalLanka.Rms.Mobile.Services.PickList;
-using TransnationalLanka.Rms.Mobile.Services.RequestDetail;
+using TransnationalLanka.Rms.Mobile.Services.Request;
 using TransnationalLanka.Rms.Mobile.Services.User;
 using TransnationalLanka.Rms.Mobile.WebApi.Location;
 using TransnationalLanka.Rms.Mobile.WebApi.MetaData;
+using TransnationalLanka.Rms.Mobile.WebApi.Middleware;
 using TransnationalLanka.Rms.Mobile.WebApi.MobileDevice;
 using TransnationalLanka.Rms.Mobile.WebApi.PickList;
+using TransnationalLanka.Rms.Mobile.WebApi.Request;
 using TransnationalLanka.Rms.Mobile.WebApi.User;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +29,7 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IMetaDataService, MetaDataService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IRequestDetailService, RequestDetailService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<IPickListService, PickListService>();
 builder.Services.AddScoped<IMobileDeviceService, MobileDeviceService>();
 
@@ -48,6 +49,7 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Contains(
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseMiddleware(typeof(ErrorHandlingMiddleware));
 
 //Application Routes
 LocationRoutes.Register(app);
@@ -55,6 +57,7 @@ MetaDataRoutes.Register(app);
 UserRoutes.Register(app);
 PickListRoutes.Register(app);
 MobileDeviceRoutes.Register(app);
+RequestRoute.Register(app);
 
 app.UseHttpsRedirection();
 

@@ -15,11 +15,18 @@ namespace TransnationalLanka.Rms.Mobile.Services.MetaData
 
         public Dal.Entities.MetaData GetMetaData()
         {
-           var fieldDefinitions = _context.FieldDefinitions.ToList();
+            var fieldDefinitions = _context.FieldDefinitions.ToList();
 
             if (fieldDefinitions == null)
-            {
-                throw new ServiceException(string.Empty, $"Unable to find field definitions");
+            {                
+                throw new ServiceException(new ErrorMessage[]
+                {
+                     new ErrorMessage()
+                     {
+                          Code = string.Empty,
+                         Message = $"Unable to find field definitions"
+                     }
+                });
             }
 
             return new Dal.Entities.MetaData()

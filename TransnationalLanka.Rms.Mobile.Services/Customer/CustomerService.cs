@@ -18,8 +18,15 @@ namespace TransnationalLanka.Rms.Mobile.Services.Customer
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.TrackingId == id);
 
             if (customer == null)
-            {
-                throw new ServiceException(null, $"Unable to find customer id {id}");
+            {               
+               throw new ServiceException(new ErrorMessage[]
+               {
+                     new ErrorMessage()
+                     {
+                         Code = string.Empty,
+                         Message =  $"Unable to find customer id {id}"
+                     }
+               });
             }
 
             return customer;

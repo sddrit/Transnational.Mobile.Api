@@ -17,8 +17,15 @@ namespace TransnationalLanka.Rms.Mobile.Services.MobileDevice
             var mobileDevice= _context.MobileDevices.Where(m=>m.DeviceUniqueId.ToLower()== deviceUniqueId.ToLower()).FirstOrDefault();   
 
             if (mobileDevice == null)
-            {
-                throw new ServiceException(string.Empty, $"Unable to find device by id {deviceUniqueId}");
+            {                
+                throw new ServiceException(new ErrorMessage[]
+                {
+                     new ErrorMessage()
+                     {
+                         Code = string.Empty,
+                         Message =  $"Unable to find device by id {deviceUniqueId}"
+                     }
+                });
             }
             
             return mobileDevice;

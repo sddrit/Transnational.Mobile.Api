@@ -42,8 +42,15 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
                    }).FirstOrDefaultAsync();
 
             if (user == null)
-            {
-                throw new ServiceException(string.Empty, $"Unable to find user by user name {userName}");
+            {             
+               throw new ServiceException(new ErrorMessage[]
+               {
+                     new ErrorMessage()
+                     {
+                         Code = string.Empty,
+                         Message = $"Unable to find user by user name {userName}"
+                     }
+               });
             }
 
             return user;

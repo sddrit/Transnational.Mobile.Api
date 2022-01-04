@@ -2,28 +2,49 @@
 {
     public class ServiceException : Exception
     {
-        public ServiceExceptionMessage[] Messages { get; }
 
-        public ServiceException(string code, string description)
+        public ErrorMessage[] Messages { get; set; }
+
+        public ServiceException(ErrorMessage[] messages)
         {
-            Messages = new ServiceExceptionMessage[] { new ServiceExceptionMessage(code, description) };
+            Messages = messages;
         }
 
-        public ServiceException(ServiceExceptionMessage[] messages)
+        public ServiceException(ErrorMessage[] messages, Exception exception)
+            : base(innerException: exception, message: null)
         {
-            this.Messages = messages;
+            Messages = messages;
         }
+
+        //public ServiceExceptionMessage[] Messages { get; }
+
+        //public ServiceException(string code, string description)
+        //{
+        //    Messages = new ServiceExceptionMessage[] { new ServiceExceptionMessage(code, description) };
+        //}
+
+        //public ServiceException(ServiceExceptionMessage[] messages)
+        //{
+        //    this.Messages = messages;
+        //}
     }
 
-    public class ServiceExceptionMessage
-    {
-        public ServiceExceptionMessage(string code, string description)
-        {
-            this.Code = code;
-            this.Description = description;
-        }
+    //public class ServiceExceptionMessage
+    //{
+    //    public ServiceExceptionMessage(string code, string description)
+    //    {
+    //        this.Code = code;
+    //        this.Description = description;
+    //    }
 
-        public string Code { get; private set; }
-        public string Description { get; private set; }
+    //    public string Code { get; private set; }
+    //    public string Description { get; private set; }
+    //}
+
+    public class ErrorMessage
+    {
+        public string Code { get; set; }
+        public object Meta { get; set; }
+        public string Message { get; set; }
     }
 }

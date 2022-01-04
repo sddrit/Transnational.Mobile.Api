@@ -19,7 +19,14 @@ namespace TransnationalLanka.Rms.Mobile.Services.Item
 
             if (item == null)
             {
-                throw new ServiceException(null, $"Unable to find carton no {cartonNo}");
+                throw new ServiceException(new ErrorMessage[]
+                {
+                     new ErrorMessage()
+                     {
+                          Code = string.Empty,
+                         Message =  $"Unable to find carton no {cartonNo}"
+                     }
+                });
             }
 
             return item;

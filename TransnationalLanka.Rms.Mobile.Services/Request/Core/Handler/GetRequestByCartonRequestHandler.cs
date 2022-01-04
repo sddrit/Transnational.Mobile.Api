@@ -1,13 +1,14 @@
 ﻿using MediatR;
-using TransnationalLanka.Rms.Mobile.Services.RequestDetail.Core.Request;
+using TransnationalLanka.Rms.Mobile.Services.Request.Core.Request;
 
-namespace TransnationalLanka.Rms.Mobile.Services.RequestDetail.Core.Handler
+
+namespace TransnationalLanka.Rms.Mobile.Services.Request.Core.Handler
 {
     public class GetRequestByCartonRequestHandler : IRequestHandler<GetRequestByCartonRequest, Dal.Entities.RequestDetail>
     {
-        private readonly IRequestDetailService _requestDetailService;
+        private readonly IRequestService _requestDetailService;
 
-        public GetRequestByCartonRequestHandler(IRequestDetailService requestDetailService)
+        public GetRequestByCartonRequestHandler(IRequestService requestDetailService)
         {
             _requestDetailService = requestDetailService;
         }      

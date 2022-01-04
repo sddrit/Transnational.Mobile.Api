@@ -1,9 +1,12 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TransnationalLanka.Rms.Mobile.Core.Exceptions;
 using TransnationalLanka.Rms.Mobile.Core.Extensions;
 using TransnationalLanka.Rms.Mobile.Dal;
+using TransnationalLanka.Rms.Mobile.Services.Item.Core.Request;
 using TransnationalLanka.Rms.Mobile.Services.PickList.Core;
-using TransnationalLanka.Rms.Mobile.Services.RequestDetail.Core.Request;
+using TransnationalLanka.Rms.Mobile.Services.Request.Core.Request;
+
 
 namespace TransnationalLanka.Rms.Mobile.Services.PickList
 {
@@ -73,13 +76,31 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
                             requestDetails.PickListNo = pickListItem.PickListNo;
                         }
 
-                        var itemStorage = _context.ItemStorages.Where(x => x.CartonNo == pickListItem.CartonNo).First();
-
-                        if (itemStorage.CartonNo > 0 && (itemStorage.LastScannedDateTime == null || itemStorage.LastScannedDateTime <= pickListItem.PickDateTime))
+                        //var itemStorage = _context.ItemStorages.Where(x => x.CartonNo == pickListItem.CartonNo).First();
+                        
+                        try
                         {
+                            var itemStorage = await _mediator.Send(new GetItemByBarCodeRequest()
+                            {
+                                CartonNo = pickListItem.CartonNo
+                            });
 
-                            itemStorage.LocationCode = "000000PICK";
+                            if (itemStorage.CartonNo > 0 && (itemStorage.LastScannedDateTime == null || itemStorage.LastScannedDateTime <= pickListItem.PickDateTime))
+                            {
+
+                                itemStorage.LocationCode = "000000PICK";
+                            }
                         }
+                        catch (ServiceException e)
+                        {
+                            result.Add(new AddPickListResult()
+                            {
+                                CartonNo = pickListItem.CartonNo,
+                                PickListNo = pickList.RequestNo,
+                                Success = false,
+                                Error = e.Message
+                            });
+                        }                     
 
                         _context.SaveChanges();
 
@@ -101,6 +122,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
                         Error = e.Message
                     });
 
+                    return false;
                 }
             }
 
