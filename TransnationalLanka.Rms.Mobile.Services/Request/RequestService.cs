@@ -42,7 +42,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
         private async Task<RequestView> GetRequestHeader(string requestNo)
         {
-            var requestHeader = await _context.RequestViews.Where(r => r.RequestNo == requestNo).FirstOrDefaultAsync();
+            var requestHeader = await _context.RequestViews.Where(r => r.RequestNo == requestNo && r.Status!= "Invoice Confirmed").FirstOrDefaultAsync();
 
             if (requestHeader == null)
             {
@@ -94,6 +94,18 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
         {
             var requestHeader = await GetRequestHeader(requestNo);
 
+            if(requestHeader==null)
+            {
+                throw new ServiceException(new ErrorMessage[]
+               {
+                     new ErrorMessage()
+                     {
+                         Code = string.Empty,
+                         Message =  $"Unable to find pending request header {requestNo}"
+                     }
+               });
+            }
+            
             int docketSerailNo = GetSerialNo(requestNo, requestHeader.RequestType);
 
             var parms = new List<SqlParameter>
@@ -180,13 +192,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
                 if (emptyDocket == null)
                 {
-                    throw new ServiceException(new ErrorMessage[]
-                    {
-                        new ErrorMessage()
-                        {
-                            Message = "Can't find empty docket"
-                        }
-                    });
+                    return 0;
                 }
 
                 serialNo = emptyDocket.SerialNo;
@@ -198,13 +204,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
                 if (docket == null)
                 {
-                    throw new ServiceException(new ErrorMessage[]
-                    {
-                        new ErrorMessage()
-                        {
-                            Message = "Unable to find docket"
-                        }
-                    });
+                    return 0;
                 }
 
                 serialNo = docket.SerialNo;
@@ -212,7 +212,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
             return serialNo;
         }
-        //refactor sp call
+      
         public async Task<List<ValidateCartonResult>> ValidateRequest(string requestNo, int cartonNo)
         {
 
