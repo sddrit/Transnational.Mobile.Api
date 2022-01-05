@@ -32,7 +32,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                      new ErrorMessage()
                      {
                          Code = string.Empty,
-                         Message =  $"Unable to find request detail  {cartonNo}"
+                         Message =  $"Unable to find request detail {cartonNo}"
                      }
                 });
             }
@@ -51,7 +51,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                      new ErrorMessage()
                      {
                          Code = string.Empty,
-                         Message =  $"Unable to find request header  {requestNo}"
+                         Message =  $"Unable to find request header {requestNo}"
                      }
                 });
             }
@@ -59,14 +59,23 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             return requestHeader;
         }
 
-        //need to add searching and paging.
-        public async Task<PagedResponse<SearchRequestResult>> SearchRequestHeader(string requestNo, string customerName, int pageIndex, int pageSize)
+        public async Task<PagedResponse<SearchRequestResult>> SearchRequestHeader(string searchText = null, 
+            int pageIndex = 1, int pageSize = 10)
         {
-            var requestHeaders = await _context.RequestViews.Where(r => r.RequestNo.Contains(requestNo) || r.Name.Contains(customerName))
+            IQueryable<RequestView> query = _context.RequestViews;
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                query = query.Where(r => r.RequestNo.ToLower().Contains(searchText.ToLower())
+                                         || r.Name.ToLower().Contains(searchText.ToLower()));
+            }
+
+            var requestHeaders = await query
+                    .OrderByDescending(r => r.DeliveryDate)
                     .Skip((pageIndex - 1) * pageSize).Take(pageSize)
                     .ToListAsync();
 
-            var count = _context.RequestViews.Where(r => r.RequestNo.Contains(requestNo) || r.Name.Contains(customerName)).Count();
+            var count = await query.CountAsync();
 
             var result = requestHeaders.Select(r => new SearchRequestResult
             {
@@ -74,41 +83,27 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 DeliveryDate = r.DeliveryDate.Value.IntToDate(),
                 Name = r.Name,
                 IsDigitallySigned = r.IsDigitallySigned == null ? false : r.IsDigitallySigned.Value
-
             }).ToList();
 
             var paginationResponse = new PagedResponse<SearchRequestResult>(result, pageIndex, pageSize, count);
 
-            if (paginationResponse == null)
-            {
-                throw new ServiceException(new ErrorMessage[]
-                {
-                     new ErrorMessage()
-                     {
-                            Code = string.Empty,
-                            Message = $"Unable to find requests"
-                     }
-                });
-            }
-
             return paginationResponse;
         }
 
-        //need to refactor sp call.
         public async Task<DocketDto> GetDocketDetails(string requestNo, string userName)
         {
             var requestHeader = await GetRequestHeader(requestNo);
 
             int docketSerailNo = GetSerialNo(requestNo, requestHeader.RequestType);
 
-            List<SqlParameter> parms = new List<SqlParameter>
+            var parms = new List<SqlParameter>
             {
-                 new SqlParameter { ParameterName = "@requestNo", Value = requestNo },
-                 new SqlParameter { ParameterName = "@printedBy", Value = userName },
-                 new SqlParameter { ParameterName = "@requestType", Value =requestHeader.RequestType}
+                 new() { ParameterName = "@requestNo", Value = requestNo },
+                 new() { ParameterName = "@printedBy", Value = userName },
+                 new() { ParameterName = "@requestType", Value = requestHeader.RequestType}
              };
 
-            var OutSerialNo = new SqlParameter
+            var outSerialNo = new SqlParameter
             {
                 ParameterName = "@serialNo",
                 SqlDbType = SqlDbType.Int,
@@ -116,10 +111,10 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 Value = docketSerailNo
             };
 
-            parms.Add(OutSerialNo);
+            parms.Add(outSerialNo);
 
-            List<DocketEmptyDetail> docketEmptyDetail = new List<DocketEmptyDetail>();
-            List<DocketDetail> docketDetails = new List<DocketDetail>();
+            var docketEmptyDetail = new List<DocketEmptyDetail>();
+            var docketDetails = new List<DocketDetail>();
 
             string spName = "exec docketRePrint ";
             string parameterNames = " @requestNo, @printedBy, @requestType, @serialNo";
@@ -131,11 +126,17 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             }
 
             if (requestHeader.RequestType.ToLower() == RequestType.empty.ToString())
-                docketEmptyDetail = _context.Set<DocketEmptyDetail>().FromSqlRaw(spName + parameterNames, parms.ToArray()).ToList();
+            {
+                docketEmptyDetail = _context.Set<DocketEmptyDetail>()
+                    .FromSqlRaw(spName + parameterNames, parms.ToArray()).ToList();
+            }
             else
-                docketDetails = _context.Set<DocketDetail>().FromSqlRaw(spName + parameterNames, parms.ToArray()).ToList();
+            {
+                docketDetails = _context.Set<DocketDetail>().FromSqlRaw(spName + parameterNames, parms.ToArray())
+                    .ToList();
+            }
 
-            int serialNo = (int)OutSerialNo.Value;
+            var serialNo = (int)outSerialNo.Value;
 
             if (requestHeader.RequestType.ToLower() != RequestType.collection.ToString() && docketEmptyDetail.Count == 0 && docketDetails.Count == 0)
             {
@@ -174,11 +175,39 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
             if (requestType.ToLower() == RequestType.empty.ToString())
             {
-                serialNo = _context.EmptyDocketPrintHeaders.Where(e => e.RequestNo == requestNo).OrderByDescending(e => e.PrintedOn).FirstOrDefault().SerialNo;
+                var emptyDocket = _context.EmptyDocketPrintHeaders.Where(e => e.RequestNo == requestNo)
+                    .OrderByDescending(e => e.PrintedOn).FirstOrDefault();
+
+                if (emptyDocket == null)
+                {
+                    throw new ServiceException(new ErrorMessage[]
+                    {
+                        new ErrorMessage()
+                        {
+                            Message = "Can't find empty docket"
+                        }
+                    });
+                }
+
+                serialNo = emptyDocket.SerialNo;
             }
             else
             {
-                serialNo = _context.DocketPrintSlices.Where(p => p.RequestNo == requestNo).OrderByDescending(p => p.TrackingId).FirstOrDefault().SerialNo;
+                var docket = _context.DocketPrintSlices.Where(p => p.RequestNo == requestNo)
+                    .OrderByDescending(p => p.TrackingId).FirstOrDefault();
+
+                if (docket == null)
+                {
+                    throw new ServiceException(new ErrorMessage[]
+                    {
+                        new ErrorMessage()
+                        {
+                            Message = "Unable to find docket"
+                        }
+                    });
+                }
+
+                serialNo = docket.SerialNo;
             }
 
             return serialNo;
@@ -188,6 +217,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
         {
 
             var request = await GetRequestHeader(requestNo);
+
             if (request == null)
             {
                 throw new ServiceException(new ErrorMessage[]
@@ -200,7 +230,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 });
             }
 
-            List<CartonValidationModel> cartonValidationModels = new List<CartonValidationModel>()
+            var cartonValidationModels = new List<CartonValidationModel>()
             {
                 new CartonValidationModel()
                 {
@@ -209,7 +239,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 }
             };
 
-            List<SqlParameter> parms = new List<SqlParameter>
+            var parms = new List<SqlParameter>
             {
                  new SqlParameter { ParameterName = "@customerCode", Value = request.CustomerCode },
                  new SqlParameter { ParameterName = "@requestNo", Value = requestNo },
@@ -224,7 +254,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 },
             };
 
-
             var result = await _context.Set<ValidateCartonResult>().FromSqlRaw("exec requestInsertUpdateDeleteValidate " +
                 " @customerCode,@requestNo, @requestType,@statementType,@requestDetail ", parms.ToArray()).ToListAsync();
 
@@ -232,11 +261,11 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             {
                 throw new ServiceException(new ErrorMessage[]
                 {
-                        new ErrorMessage()
-                        {
-                            Code = string.Empty,
-                            Message = $"nothing to validate"
-                        }
+                    new ErrorMessage()
+                    {
+                        Code = string.Empty,
+                        Message = $"nothing to validate"
+                    }
                 });
             }
 
