@@ -112,7 +112,8 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             {
                  new() { ParameterName = "@requestNo", Value = requestNo },
                  new() { ParameterName = "@printedBy", Value = userName },
-                 new() { ParameterName = "@requestType", Value = requestHeader.RequestType}
+                 new() { ParameterName = "@requestType", Value = requestHeader.RequestType},
+                  new() { ParameterName = "@isMobile", Value = true}
              };
 
             var outSerialNo = new SqlParameter
@@ -126,14 +127,14 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             parms.Add(outSerialNo);
 
             var docketEmptyDetail = new List<DocketEmptyDetail>();
-            var docketDetails = new List<DocketDetail>();
+            var docketDetails = new List<string>();
 
             string spName = "exec docketRePrint ";
-            string parameterNames = " @requestNo, @printedBy, @requestType, @serialNo";
+            string parameterNames = " @requestNo, @printedBy, @requestType, @serialNo ,@isMobile";
 
             if (docketSerailNo == 0)
             {
-                parameterNames = parameterNames + " OUTPUT ";
+                parameterNames = parameterNames + " OUTPUT , @isMobile ";
                 spName = "exec docketInsertUpdateDelete ";
             }
 
@@ -144,8 +145,9 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             }
             else
             {
-                docketDetails = _context.Set<DocketDetail>().FromSqlRaw(spName + parameterNames, parms.ToArray())
-                    .ToList();
+                var requestDetails = _context.Set<DocketDetail>().FromSqlRaw(spName + parameterNames, parms.ToArray()).ToList();
+                docketDetails = requestDetails.Select(i => i.CartonNo).ToList();                  
+                
             }
 
             var serialNo = (int)outSerialNo.Value;
@@ -188,14 +190,14 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             if (requestType.ToLower() == RequestType.empty.ToString())
             {
                 var emptyDocket = _context.EmptyDocketPrintHeaders.Where(e => e.RequestNo == requestNo)
-                    .OrderByDescending(e => e.PrintedOn).FirstOrDefault();
+                    .OrderByDescending(e => e.PrintedOn);
 
                 if (emptyDocket == null)
                 {
                     return 0;
                 }
 
-                serialNo = emptyDocket.SerialNo;
+                serialNo =Convert.ToInt32( emptyDocket.FirstOrDefault().SerialNo);
             }
             else
             {

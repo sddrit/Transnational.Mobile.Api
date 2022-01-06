@@ -27,6 +27,10 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
         [Column("pickListNo")]
         [MaxLength(50)]
         public string PickListNo { get; set; }
-       
+
+        [Column("deleted")]
+        public bool? Deleted { get; set; }
+        
+
     }
 }

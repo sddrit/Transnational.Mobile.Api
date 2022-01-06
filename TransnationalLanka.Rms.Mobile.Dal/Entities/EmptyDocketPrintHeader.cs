@@ -13,7 +13,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
     {
         [Key]
         [Column("serialNo")]
-        public int SerialNo { get; set; }
+        public decimal SerialNo { get; set; }
 
         [Column("requestNo")]
         public string RequestNo { get; set; }

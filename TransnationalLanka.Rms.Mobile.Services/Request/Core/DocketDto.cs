@@ -16,7 +16,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request.Core
         public string Department { get; set; }
         public bool IsPrintAlternativeNo { get; set; }
         public List<DocketEmptyDetail> EmptyDetails { get; set; }
-        public List<DocketDetail> DocketDetails { get; set; }
+        public List<string> DocketDetails { get; set; }
         public string Route { get; set; }
     }
 }
