@@ -15,11 +15,15 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Request
             app.MapPost("/v1/api/request/create-docket", CreateDocket)
                 .WithName("Get docket");
 
+            app.MapPost("/v1/api/request/bind-cartons-collection", BindCartonsToCollection)
+               .WithName("Bind Cartons to Collection");
+
             app.MapGet("/v1/api/request", SearchRequest)
                 .WithName("Search request");
 
             app.MapGet("/v1/api/request/validate/{requestNo}/{cartonNo}", ValidateCartonsInRequest)
                 .WithName("Validate carton");
+
         }
 
         public static async Task<IResult> CreateDocket([FromBody] CreateDocketBindingModel model,
@@ -42,6 +46,12 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Request
             [FromServices] IRequestService requestService)
         {
             var request = await requestService.ValidateRequest(requestNo, cartonNo);
+            return Results.Ok(request);
+        }
+
+        public static async Task<IResult> BindCartonsToCollection(CollectionCartonBindModel model,[FromServices] IRequestService requestService)
+        {
+            var request = await requestService.BindCartonsToColletion(model);
             return Results.Ok(request);
         }
     }

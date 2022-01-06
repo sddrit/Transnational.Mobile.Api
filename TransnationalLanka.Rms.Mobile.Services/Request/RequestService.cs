@@ -42,7 +42,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
         private async Task<RequestView> GetRequestHeader(string requestNo)
         {
-            var requestHeader = await _context.RequestViews.Where(r => r.RequestNo == requestNo && r.Status!= "Invoice Confirmed" && r.Deleted==false).FirstOrDefaultAsync();
+            var requestHeader = await _context.RequestViews.Where(r => r.RequestNo == requestNo && r.Status != "Invoice Confirmed" && r.Deleted == false).FirstOrDefaultAsync();
 
             if (requestHeader == null)
             {
@@ -59,7 +59,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             return requestHeader;
         }
 
-        public async Task<PagedResponse<SearchRequestResult>> SearchRequestHeader(string searchText = null, 
+        public async Task<PagedResponse<SearchRequestResult>> SearchRequestHeader(string searchText = null,
             int pageIndex = 1, int pageSize = 10)
         {
             IQueryable<RequestView> query = _context.RequestViews;
@@ -94,7 +94,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
         {
             var requestHeader = await GetRequestHeader(requestNo);
 
-            if(requestHeader==null)
+            if (requestHeader == null)
             {
                 throw new ServiceException(new ErrorMessage[]
                {
@@ -105,7 +105,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                      }
                });
             }
-            
+
             int docketSerailNo = GetSerialNo(requestNo, requestHeader.RequestType);
 
             var parms = new List<SqlParameter>
@@ -146,8 +146,8 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             else
             {
                 var requestDetails = _context.Set<DocketDetail>().FromSqlRaw(spName + parameterNames, parms.ToArray()).ToList();
-                docketDetails = requestDetails.Select(i => i.CartonNo).ToList();                  
-                
+                docketDetails = requestDetails.Select(i => i.CartonNo).ToList();
+
             }
 
             var serialNo = (int)outSerialNo.Value;
@@ -197,7 +197,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                     return 0;
                 }
 
-                serialNo =Convert.ToInt32( emptyDocket.FirstOrDefault().SerialNo);
+                serialNo = Convert.ToInt32(emptyDocket.FirstOrDefault().SerialNo);
             }
             else
             {
@@ -214,8 +214,24 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
             return serialNo;
         }
-      
+
         public async Task<List<ValidateCartonResult>> ValidateRequest(string requestNo, int cartonNo)
+        {
+
+            var cartonValidationModels = new List<DocketDetail>()
+            {
+                new DocketDetail()
+                {
+                   CartonNo= cartonNo.ToString()
+                }
+            };
+
+            var result = await ValidateRequest(requestNo, cartonValidationModels);
+
+            return result;
+        }
+
+        private async Task<List<ValidateCartonResult>> ValidateRequest(string requestNo, List<DocketDetail> docketDetails)
         {
 
             var request = await GetRequestHeader(requestNo);
@@ -232,20 +248,19 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 });
             }
 
-            var cartonValidationModels = new List<CartonValidationModel>()
+            var cartonValidationModels = docketDetails.Select(dt => new CartonValidationModel()
             {
-                new CartonValidationModel()
-                {
-                    CartonNo=cartonNo,
-                    ToCartonNo=cartonNo
-                }
-            };
+                CartonNo = Convert.ToInt32(dt.CartonNo),
+                ToCartonNo = Convert.ToInt32(dt.CartonNo)
+
+            }).ToList();
+
 
             var parms = new List<SqlParameter>
             {
                  new SqlParameter { ParameterName = "@customerCode", Value = request.CustomerCode },
+                  new SqlParameter { ParameterName = "@requestType", Value = request.RequestType.ToString()},
                  new SqlParameter { ParameterName = "@requestNo", Value = requestNo },
-                 new SqlParameter { ParameterName = "@requestType", Value = request.RequestType.ToString()},
                  new SqlParameter { ParameterName = "@statementType", Value ="Edit"},
                  new SqlParameter
                 {
@@ -257,7 +272,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             };
 
             var result = await _context.Set<ValidateCartonResult>().FromSqlRaw("exec requestInsertUpdateDeleteValidate " +
-                " @customerCode,@requestNo, @requestType,@statementType,@requestDetail ", parms.ToArray()).ToListAsync();
+                " @customerCode, @requestType,@requestNo,@statementType,@requestDetail ", parms.ToArray()).ToListAsync();
 
             if (result == null)
             {
@@ -303,11 +318,11 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 RequestNo = model.RequestNo,
                 UploadedBy = model.UserName,
                 UploadedDate = System.DateTime.Now,
-                CustomerName= model.CustomerName,
-                CustomerNIC=model.CustomerNIC,
-                CustomerDepartment= model.CustomerDepartment,
-                CustomerDesignation= model.CustomerDesignation,
-                DocketSerialNo= model.DocketSerialNo                
+                CustomerName = model.CustomerName,
+                CustomerNIC = model.CustomerNIC,
+                CustomerDepartment = model.CustomerDepartment,
+                CustomerDesignation = model.CustomerDesignation,
+                DocketSerialNo = model.DocketSerialNo
             };
 
             _context.Add(signatureInfo);
@@ -315,6 +330,74 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             await _context.SaveChangesAsync();
 
             return true;
+
+        }
+
+        public async Task<bool> BindCartonsToColletion(CollectionCartonBindModel model)
+        {
+
+            var request = await GetRequestHeader(model.RequestNo);
+
+            if (request == null)
+            {
+                throw new ServiceException(new ErrorMessage[]
+                {
+                    new ErrorMessage()
+                    {
+                        Message = $"Unable to find request {model.RequestNo}"
+                    }
+                });
+
+            }
+            if (request.RequestType.ToLower() != RequestType.collection.ToString())
+            {
+                throw new ServiceException(new ErrorMessage[]
+                {
+                    new ErrorMessage()
+                    {
+                        Message = $"Unable to bind cartons for {request.RequestType}"
+                    }
+                });
+            }
+
+            var validatedResult = await ValidateRequest(model.RequestNo, model.DocketDetails);
+
+            if (validatedResult.Where(x => x.CanProcess == false).Any())
+            {
+                throw new ServiceException(new ErrorMessage[]
+                {
+                    new ErrorMessage()
+                    {
+                        Message = "Request cannot be signed - invalid cartons collected"
+                    }
+                });
+            }
+
+            foreach (DocketDetail detail in model.DocketDetails)
+            {
+                var existResult = _context.RequestDetails.Where(rd => rd.RequestNo == model.RequestNo && rd.CartonNo.ToString() == detail.CartonNo);
+
+
+                if (!(existResult.Any()))
+                {
+
+                    _context.RequestDetails.Add(new RequestDetail()
+                    {
+                        CartonNo = Convert.ToInt32(detail.CartonNo),
+                        Deleted = false,
+                        FromMobile = true,
+                        Picked = false,
+                        PickListNo = string.Empty,
+                        RequestNo = model.RequestNo,
+                        CollectedBy = model.UserName,
+                        CollectedDate = System.DateTime.Now
+                    });
+                }
+            }
+            _context.SaveChanges();
+
+            return true;
+
 
 
         }

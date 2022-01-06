@@ -31,6 +31,12 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
         [Column("deleted")]
         public bool? Deleted { get; set; }
         
+        [Column("collectedDate")]
+        public DateTime CollectedDate { get; set; }
+
+        [Column("collectedBy")]
+        public string CollectedBy { get; set; }        
+
 
     }
 }
