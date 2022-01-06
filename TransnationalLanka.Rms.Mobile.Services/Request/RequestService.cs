@@ -272,23 +272,31 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             return result;
         }
 
-        //to implement image upload
         public async Task<bool> UploadSignature(RequestSignatureModel model)
         {
 
-            var request = await _context.RequestHeaders.Where(r => r.RequestNo == model.RequestNo).FirstOrDefaultAsync();
+            var request = await _context.RequestHeaders.Where(r => r.RequestNo == model.RequestNo)
+                .FirstOrDefaultAsync();
 
-            if (request != null)
+            if (request == null)
             {
-                request.DigitallySignedDate = System.DateTime.Now;
-                request.IsDigitallySigned = true;
-                request.DigitallySignedBy = model.UserName;
-
+                throw new ServiceException(new ErrorMessage[]
+                {
+                    new ErrorMessage()
+                    {
+                        Message = "Unable to find request"
+                    }
+                });
             }
+
+            request.DigitallySignedDate = DateTime.Now;
+            request.IsDigitallySigned = true;
+            request.DigitallySignedBy = model.UserName;
 
             var signatureInfo = new RequestSignatureImage
             {
-                ImagePath = model.ImagePath,
+                ImagePath = model.FileName,
+                ContentType = model.ContentType,
                 RequestNo = model.RequestNo,
                 UploadedBy = model.RequestNo,
                 UploadedDate = System.DateTime.Now
@@ -296,9 +304,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
             _context.Add(signatureInfo);
 
-            _context.SaveChanges();
-
-            //to implement image upload
+            await _context.SaveChangesAsync();
 
             return true;
 

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TransnationalLanka.Rms.Mobile.Dal;
 using TransnationalLanka.Rms.Mobile.Services.Customer;
+using TransnationalLanka.Rms.Mobile.Services.Image;
 using TransnationalLanka.Rms.Mobile.Services.Item;
 using TransnationalLanka.Rms.Mobile.Services.Location;
 using TransnationalLanka.Rms.Mobile.Services.MetaData;
@@ -32,9 +33,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRequestService, RequestService>();
 builder.Services.AddScoped<IPickListService, PickListService>();
 builder.Services.AddScoped<IMobileDeviceService, MobileDeviceService>();
-
+builder.Services.AddScoped<IImageService, ImageService>(provider =>
+    new ImageService(builder.Configuration["SignatureImageUploadPath"]));
 
 builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddControllers();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -60,5 +64,12 @@ MobileDeviceRoutes.Register(app);
 RequestRoute.Register(app);
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.Run();

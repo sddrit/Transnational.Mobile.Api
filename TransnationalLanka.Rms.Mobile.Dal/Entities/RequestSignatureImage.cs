@@ -17,6 +17,9 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
         [Column("imagePath")]
         public string ImagePath { get; set; }
 
+        [Column("contentType")]
+        public string ContentType { get; set; }
+
         [Column("uploadedDate")]
         public DateTime UploadedDate { get; set; }
 
