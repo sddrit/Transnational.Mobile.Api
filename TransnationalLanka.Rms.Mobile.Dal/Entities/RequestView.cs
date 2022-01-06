@@ -123,5 +123,9 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
         
         [Column("isDigitallySigned")]
         public bool? IsDigitallySigned { get; set; }
+
+        [Column("deleted")]
+        public bool? Deleted { get; set; }
+        
     }
 }

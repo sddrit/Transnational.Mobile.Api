@@ -16,6 +16,12 @@
             Messages = messages;
         }
 
+        public override string ToString()
+        {
+            return Messages == null ? Message :
+                string.Join(" | ", Messages.Select(e => e.Message));
+        }
+
         //public ServiceExceptionMessage[] Messages { get; }
 
         //public ServiceException(string code, string description)

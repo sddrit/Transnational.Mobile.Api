@@ -42,7 +42,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
         private async Task<RequestView> GetRequestHeader(string requestNo)
         {
-            var requestHeader = await _context.RequestViews.Where(r => r.RequestNo == requestNo && r.Status!= "Invoice Confirmed").FirstOrDefaultAsync();
+            var requestHeader = await _context.RequestViews.Where(r => r.RequestNo == requestNo && r.Status!= "Invoice Confirmed" && r.Deleted==false).FirstOrDefaultAsync();
 
             if (requestHeader == null)
             {
@@ -274,10 +274,9 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
         public async Task<bool> UploadSignature(RequestSignatureModel model)
         {
-            var request = await _context.RequestHeaders.Where(r => r.RequestNo == model.RequestNo)
-                .FirstOrDefaultAsync();
+            var validateRequest = await GetRequestHeader(model.RequestNo);
 
-            if (request == null)
+            if (validateRequest == null)
             {
                 throw new ServiceException(new ErrorMessage[]
                 {
@@ -287,6 +286,9 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                     }
                 });
             }
+
+            var request = await _context.RequestHeaders.Where(r => r.RequestNo == model.RequestNo)
+              .FirstOrDefaultAsync();
 
             request.DigitallySignedDate = DateTime.Now;
             request.IsDigitallySigned = true;

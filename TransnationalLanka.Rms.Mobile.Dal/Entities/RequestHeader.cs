@@ -24,6 +24,8 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 
         [Column("digitallySignedBy")]
         public string? DigitallySignedBy { get; set; }
+
+        
       
     }
 }
