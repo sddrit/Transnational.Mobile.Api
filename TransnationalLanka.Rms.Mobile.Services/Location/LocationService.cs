@@ -5,6 +5,7 @@ using TransnationalLanka.Rms.Mobile.Core.Exceptions;
 using TransnationalLanka.Rms.Mobile.Core.Extensions;
 using TransnationalLanka.Rms.Mobile.Dal;
 using TransnationalLanka.Rms.Mobile.Dal.Entities;
+using TransnationalLanka.Rms.Mobile.Dal.Helper;
 using TransnationalLanka.Rms.Mobile.Services.Customer.Core.Request;
 using TransnationalLanka.Rms.Mobile.Services.Item.Core.Request;
 using TransnationalLanka.Rms.Mobile.Services.Location.Core;
@@ -153,7 +154,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
                 .GroupBy(item => item.ScanDateTime.Value.Date).Select(item => new LocationItemDetailDto()
                 {
                     ScanDate = item.Key,
-                    CartonCount = item.Distinct().Count()
+                    CartonCount = item.Select(x => x.CartonNo).Distinct().Count()
 
                 }).ToList();
 
@@ -161,21 +162,37 @@ namespace TransnationalLanka.Rms.Mobile.Services.Location
         }
 
 
-        public List<LocationItemViewDto> GetScanByDetail(string userName, DateTime dtUtc)
+        public async Task<PagedResponse<LocationItemViewDto>> GetScanByDetail(string userName, DateTime dtUtc, string searchText = null,
+            int pageIndex = 1, int pageSize = 10)
         {
-            var locationItem =
-                _context.LocationItems
+
+            IQueryable<LocationItem> query = _context.LocationItems
                 .Where(l => l.CreatedUserName.ToLower() == userName.ToLower() &&
-                l.ScanDateTime != null && l.ScanDateTime.Value.Date == dtUtc.ConvertToLK().Date)
+                 l.ScanDateTime != null && l.ScanDateTime.Value.Date == dtUtc.ConvertToLK().Date);
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                query = query.Where(l => l.BarCode.Contains(searchText.ToLower())
+                                         || l.LocationCode.ToLower().Contains(searchText.ToLower()));
+            }
+
+            var locationItems = await query
+                 .OrderByDescending(r => r.ScanDateTime)
+                 .Skip((pageIndex - 1) * pageSize).Take(pageSize)
                 .Select(item => new LocationItemViewDto()
                 {
                     BarCode = item.BarCode,
                     LocationCode = item.LocationCode,
                     ScannedDateTime = item.ScanDateTime.Value.ConvertToUtc()
 
-                }).Distinct().ToList();
+                }).Distinct().ToListAsync();
 
-            return locationItem;
+            var count = await query.CountAsync();
+
+            var paginationResponse = new PagedResponse<LocationItemViewDto>(locationItems, pageIndex, pageSize, count);
+
+            return paginationResponse;
+
         }
     }
 }

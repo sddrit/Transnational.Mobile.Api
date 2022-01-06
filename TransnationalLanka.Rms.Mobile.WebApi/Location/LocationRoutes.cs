@@ -42,10 +42,9 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Location
             return Results.Ok(locationSummary);
         }
 
-        public static IResult GetScanByDetail([FromRoute] string userName, DateTime dateUtc,
-           [FromServices] ILocationService locationService)
+        public static async Task<IResult> GetScanByDetail([FromRoute] string userName, [FromQuery] DateTime dateUtc, [FromServices] ILocationService locationService,[FromQuery] string searchText = null, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
         {
-            var locationDetail = locationService.GetScanByDetail(userName, dateUtc);
+            var locationDetail = await locationService.GetScanByDetail(userName, dateUtc,searchText,pageIndex,pageSize);
             return Results.Ok(locationDetail);
         }
     }
