@@ -25,5 +25,21 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 
         [Column("uploadedBy")]
         public string UploadedBy { get; set; }
+
+        [Column("docketSerialNo")]
+        public long DocketSerialNo { get; set; }
+
+        [Column("customerName")]
+        public string CustomerName { get; set; }
+
+        [Column("customerNIC")]
+        public string CustomerNIC { get; set; }
+
+        [Column("customerDesignation")]
+        public string CustomerDesignation { get; set; }
+
+        [Column("customerDepartment")]
+        public string CustomerDepartment { get; set; }
+        
     }
 }

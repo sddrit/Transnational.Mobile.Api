@@ -21,27 +21,31 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Signature
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromForm]SignatureRequestBindingModel model)
+        public async Task<IActionResult> Post([FromForm] SignatureRequestBindingModel model)
         {
-            var file = model.File;
-            var fileExtension = Path.GetExtension(file.FileName);
-            
-            await using var fileMemoryStream = new MemoryStream();
-            await file.CopyToAsync(fileMemoryStream);
-            var fileContent = fileMemoryStream.ToArray();
-            
-            var uploadedPath = await _imageService.UploadFile($"req-{model.RequestNo}-signature{fileExtension}",
-                file.ContentType, fileContent);
-
             try
             {
+                var file = model.File;
+                var fileExtension = Path.GetExtension(file.FileName);
+
+                await using var fileMemoryStream = new MemoryStream();
+                await file.CopyToAsync(fileMemoryStream);
+                var fileContent = fileMemoryStream.ToArray();
+
+                var uploadedPath = await _imageService.UploadFile($"req-{model.RequestNo}-{model.DocketSerialNo}-signature{fileExtension}",
+                    file.ContentType, fileContent);
 
                 await _requestService.UploadSignature(new RequestSignatureModel()
                 {
                     ContentType = file.ContentType,
                     FileName = Path.GetFileName(uploadedPath),
                     RequestNo = model.RequestNo,
-                    UserName = model.UserName
+                    UserName = model.UserName,
+                    DocketSerialNo = model.DocketSerialNo,
+                    CustomerDepartment = model.CustomerDepartment,
+                    CustomerDesignation = model.CustomerDesignation,
+                    CustomerNIC = model.CustomerNIC,
+                    CustomerName = model.CustomerName
                 });
             }
             catch (ServiceException e)

@@ -274,7 +274,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
         public async Task<bool> UploadSignature(RequestSignatureModel model)
         {
-
             var request = await _context.RequestHeaders.Where(r => r.RequestNo == model.RequestNo)
                 .FirstOrDefaultAsync();
 
@@ -298,8 +297,13 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 ImagePath = model.FileName,
                 ContentType = model.ContentType,
                 RequestNo = model.RequestNo,
-                UploadedBy = model.RequestNo,
-                UploadedDate = System.DateTime.Now
+                UploadedBy = model.UserName,
+                UploadedDate = System.DateTime.Now,
+                CustomerName= model.CustomerName,
+                CustomerNIC=model.CustomerNIC,
+                CustomerDepartment= model.CustomerDepartment,
+                CustomerDesignation= model.CustomerDesignation,
+                DocketSerialNo= model.DocketSerialNo                
             };
 
             _context.Add(signatureInfo);
