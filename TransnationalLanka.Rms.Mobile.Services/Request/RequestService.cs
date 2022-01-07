@@ -378,7 +378,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 var existResult = _context.RequestDetails.Where(rd => rd.RequestNo == model.RequestNo && rd.CartonNo.ToString() == detail.CartonNo);
 
 
-                if (!(existResult.Any()))
+                if (existResult.Count() == 0)
                 {
 
                     _context.RequestDetails.Add(new RequestDetail()
