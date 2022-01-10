@@ -28,7 +28,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 
         [Column("wareHouseCode")]
         [MaxLength(20)]
-        public string WareHouseCode { get; set; }
+        public string? WareHouseCode { get; set; }
 
         [Column("lastSentDeviceId")]
         [MaxLength(50)]
@@ -45,7 +45,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
         public int PickedUserId { get; set; }
 
         [Column("isPicked")]
-        public bool IsPicked { get; set; }
+        public bool? IsPicked { get; set; }
 
         [Column("pickDate")]
         public long? PickDate { get; set; }

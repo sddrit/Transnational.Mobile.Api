@@ -75,15 +75,16 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                     .Skip((pageIndex - 1) * pageSize).Take(pageSize)
                     .ToListAsync();
 
-            var count = await query.CountAsync();
+            var count = await query.CountAsync();          
 
             var result = requestHeaders.Select(r => new SearchRequestResult
             {
                 RequestNo = r.RequestNo,
                 DeliveryDate = r.DeliveryDate.Value.IntToDate(),
                 Name = r.Name,
-                IsDigitallySigned = r.IsDigitallySigned == null ? false : r.IsDigitallySigned.Value
+                IsDigitallySigned = r.IsDigitallySigned.Value
             }).ToList();
+          
 
             var paginationResponse = new PagedResponse<SearchRequestResult>(result, pageIndex, pageSize, count);
 
@@ -130,11 +131,11 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
             var docketDetails = new List<string>();
 
             string spName = "exec docketRePrint ";
-            string parameterNames = " @requestNo, @printedBy, @requestType, @serialNo ,@isMobile";
+            string parameterNames = " @requestNo, @printedBy, @requestType,@isMobile, @serialNo ";
 
             if (docketSerailNo == 0)
             {
-                parameterNames = parameterNames + " OUTPUT , @isMobile ";
+                parameterNames = parameterNames + " OUTPUT ";
                 spName = "exec docketInsertUpdateDelete ";
             }
 
@@ -192,7 +193,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 var emptyDocket = _context.EmptyDocketPrintHeaders.Where(e => e.RequestNo == requestNo)
                     .OrderByDescending(e => e.PrintedOn);
 
-                if (emptyDocket == null)
+                if (emptyDocket.Count() == 0)
                 {
                     return 0;
                 }

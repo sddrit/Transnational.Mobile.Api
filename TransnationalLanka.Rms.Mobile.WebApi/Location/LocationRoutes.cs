@@ -14,7 +14,7 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Location
             app.MapGet("/v1/api/locationSummaryByUser/{userName}", GetScanBySummary)
                .WithName("Get Location Summary by User");
 
-            app.MapGet("/v1/api/locationDetailByUser/{userName}/{dateUtc}", GetScanByDetail)
+            app.MapGet("/v1/api/locationDetailByUser/{userName}", GetScanByDetail)
             .WithName("Get Location Details by User");
 
             app.MapPost("/v1/api/locationItem", AddLocationItem)

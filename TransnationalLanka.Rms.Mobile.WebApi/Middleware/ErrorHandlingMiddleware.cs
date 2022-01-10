@@ -45,7 +45,7 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Middleware
             {
                 errorMessages.Add(new ErrorMessage()
                 {
-                    Code = null,
+                    Code = exception.InnerException.Message,
                     Message = exception.Message
                 });
             }

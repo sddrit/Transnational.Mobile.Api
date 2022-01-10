@@ -53,6 +53,7 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName.Contains(
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseMiddleware(typeof(ErrorHandlingMiddleware));
 
 //Application Routes
