@@ -14,7 +14,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "UatId"
+        "ASPNETCORE_ENVIRONMENT": "UatLk"
       },
       "applicationUrl": "https://localhost:7219;http://localhost:5219",
       "dotnetRunMessages": true

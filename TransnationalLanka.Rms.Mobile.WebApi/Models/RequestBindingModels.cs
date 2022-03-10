@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 
 namespace TransnationalLanka.Rms.Mobile.WebApi.Models
 {
@@ -26,5 +27,6 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Models
         public string CustomerNIC { get; set; }
         public string? CustomerDesignation { get; set; }
         public string? CustomerDepartment { get; set; }
+    
     }
 }

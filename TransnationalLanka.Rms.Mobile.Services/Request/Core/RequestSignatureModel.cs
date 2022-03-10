@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 
 namespace TransnationalLanka.Rms.Mobile.Services.Request.Core
 {
@@ -27,6 +28,9 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request.Core
 
         public string CustomerDesignation { get; set; }
         public string CustomerDepartment { get; set; }
+      
+
+
 
     }
 }

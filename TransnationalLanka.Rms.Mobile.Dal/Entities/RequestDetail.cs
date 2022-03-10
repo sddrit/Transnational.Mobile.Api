@@ -26,16 +26,16 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 
         [Column("pickListNo")]
         [MaxLength(50)]
-        public string PickListNo { get; set; }
+        public string? PickListNo { get; set; }
 
         [Column("deleted")]
         public bool? Deleted { get; set; }
         
         [Column("collectedDate")]
-        public DateTime CollectedDate { get; set; }
+        public DateTime? CollectedDate { get; set; }
 
         [Column("collectedBy")]
-        public string CollectedBy { get; set; }        
+        public string? CollectedBy { get; set; }        
 
 
     }
