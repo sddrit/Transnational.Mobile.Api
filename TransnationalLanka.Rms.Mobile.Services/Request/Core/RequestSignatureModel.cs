@@ -28,8 +28,9 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request.Core
 
         public string CustomerDesignation { get; set; }
         public string CustomerDepartment { get; set; }
-      
 
+        public double? Lat { get; set; }
+        public double? Lon { get; set; }
 
 
     }

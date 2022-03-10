@@ -22,7 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Initialize the Database Context
 builder.Services.AddDbContext<RmsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"), opt => opt.UseNetTopologySuite()));
 
 //Add Project Services
 builder.Services.AddScoped<ILocationService, LocationService>();

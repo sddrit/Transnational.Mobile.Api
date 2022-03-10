@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using NetTopologySuite.Geometries;
 using TransnationalLanka.Rms.Mobile.Core.Enum;
 using TransnationalLanka.Rms.Mobile.Core.Exceptions;
 using TransnationalLanka.Rms.Mobile.Core.Extensions;
@@ -325,6 +326,11 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
                 CustomerDesignation = model.CustomerDesignation,
                 DocketSerialNo = model.DocketSerialNo
             };
+
+            if (model.Lat.HasValue && model.Lon.HasValue)
+            {
+                signatureInfo.CustomerLocation = new Point(model.Lon.Value, model.Lat.Value);
+            }
 
             _context.Add(signatureInfo);
 

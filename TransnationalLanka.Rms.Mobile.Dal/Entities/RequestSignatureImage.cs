@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NetTopologySuite.Geometries;
 
 namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 {
@@ -40,6 +41,9 @@ namespace TransnationalLanka.Rms.Mobile.Dal.Entities
 
         [Column("customerDepartment")]
         public string CustomerDepartment { get; set; }
-        
+
+        [Column(TypeName = "customerLocation")]
+        public Point? CustomerLocation { get; set; }
+
     }
 }

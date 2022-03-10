@@ -27,6 +27,8 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Models
         public string CustomerNIC { get; set; }
         public string? CustomerDesignation { get; set; }
         public string? CustomerDepartment { get; set; }
+        public double? Lat { get; set; }
+        public double? Lon { get; set; }
     
     }
 }

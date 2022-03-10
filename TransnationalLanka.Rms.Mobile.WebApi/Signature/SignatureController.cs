@@ -45,7 +45,9 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.Signature
                     CustomerDepartment = model.CustomerDepartment,
                     CustomerDesignation = model.CustomerDesignation,
                     CustomerNIC = model.CustomerNIC,
-                    CustomerName = model.CustomerName
+                    CustomerName = model.CustomerName,
+                    Lat = model.Lat,
+                    Lon = model.Lon
                 });
             }
             catch (ServiceException e)
