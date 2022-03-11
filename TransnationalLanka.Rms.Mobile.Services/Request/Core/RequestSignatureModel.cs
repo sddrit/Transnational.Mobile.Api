@@ -32,6 +32,8 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request.Core
         public double? Lat { get; set; }
         public double? Lon { get; set; }
 
+        public bool? IsSplitRequest { get; set; }
+
 
     }
 }

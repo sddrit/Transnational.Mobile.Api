@@ -15,4 +15,10 @@
         public int ToCartonNo { get; set; }
     }
 
+    public class CartonSplitResultModel
+    {
+        public int OutValue { get; set; }
+       
+    }
+
 }

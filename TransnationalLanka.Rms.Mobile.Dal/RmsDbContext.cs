@@ -29,6 +29,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal
         public DbSet<ValidateCartonResult> ValidateCartonResults { get; set; }
         public DbSet<RequestHeader> RequestHeaders { get; set; }
         public DbSet<RequestSignatureImage> RequestSignatureImages { get; set; }
+        public DbSet<CartonSplitResultModel> CartonSplitResultModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +41,8 @@ namespace TransnationalLanka.Rms.Mobile.Dal
         modelBuilder.Entity<DocketEmptyDetail>().HasNoKey();
         modelBuilder.Entity<DocketDetail>().HasNoKey();
         modelBuilder.Entity<ValidateCartonResult>().HasNoKey();
+        modelBuilder.Entity<CartonSplitResultModel>().HasNoKey();
+            
 
         }
     }

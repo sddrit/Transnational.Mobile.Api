@@ -336,6 +336,26 @@ namespace TransnationalLanka.Rms.Mobile.Services.Request
 
             await _context.SaveChangesAsync();
 
+
+            if (model.IsSplitRequest.Value)
+            {
+                try
+                {
+
+                    // Split Collection
+                    var parms = new List<SqlParameter>
+            {
+                 new SqlParameter { ParameterName = "@requestNumber", Value = request.RequestNo },
+                  new SqlParameter { ParameterName = "@userName", Value = request.DigitallySignedBy}
+            };
+
+                    var result = await _context.Set<CartonSplitResultModel>().FromSqlRaw("exec requestInsertUpdateDeleteSplitMobile " +
+                        " @requestNumber, @userName ", parms.ToArray()).ToListAsync();
+
+                }
+                catch (Exception ex)
+                { }
+            }
             return true;
 
         }
