@@ -88,5 +88,23 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
             return hex.ToString();
         }
 
+        public async Task<bool> AddUserLoginHistory(UserLoginHistoryDto userLoginHistoryDtos)
+        {
+
+
+            _context.UserLoggers.Add(new Dal.Entities.UserLogger()
+            { 
+                UserId = userLoginHistoryDtos.UserId,
+                LoginDate = userLoginHistoryDtos.LoginDate, 
+                HostName = userLoginHistoryDtos.HostName
+            
+            }
+            
+            );
+           await  _context.SaveChangesAsync();
+
+            return true;
+
+        }
     }
 }

@@ -6,5 +6,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.User
     {
         public List<UserDto> GetUsers();
         public Task<UserDto> GetUsersByUserName(string userName);
+        Task<bool> AddUserLoginHistory(UserLoginHistoryDto userLoginHistoryDtos);
     }
 }

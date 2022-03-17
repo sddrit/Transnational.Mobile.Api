@@ -30,6 +30,7 @@ namespace TransnationalLanka.Rms.Mobile.Dal
         public DbSet<RequestHeader> RequestHeaders { get; set; }
         public DbSet<RequestSignatureImage> RequestSignatureImages { get; set; }
         public DbSet<CartonSplitResultModel> CartonSplitResultModels { get; set; }
+        public DbSet<UserLogger> UserLoggers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
