@@ -24,6 +24,6 @@
 
     public class PickListMarkDeleteDto
     {
-        public long TrackingId { get; set; }
+        public string PickListNo { get; set; }
     }
 }

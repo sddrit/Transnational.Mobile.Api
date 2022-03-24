@@ -8,6 +8,6 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
 
         public Task<bool> UpdatePickStatus(List<PickListInsertDto> pickListItems);
 
-        public Task<bool> MarkAsDeletedFromDevice(List<PickListMarkDeleteDto> pickListMarkDeleteDtos);
+        public Task<bool> MarkAsDeletedFromDevice(PickListMarkDeleteDto pickListMarkDeleteDtos);
     }
 }

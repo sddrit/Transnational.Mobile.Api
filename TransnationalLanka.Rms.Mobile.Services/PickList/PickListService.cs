@@ -47,7 +47,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
 
             foreach (var pickListItem in pickListItems)
             {
-                var pickList = _context.PickLists.Where(x => x.PickListNo == pickListItem.PickListNo && x.CartonNo == pickListItem.CartonNo && x.IsPicked == false ).FirstOrDefault();
+                var pickList = _context.PickLists.Where(x => x.PickListNo == pickListItem.PickListNo && x.CartonNo == pickListItem.CartonNo && x.IsPicked == false).FirstOrDefault();
 
                 try
                 {
@@ -77,7 +77,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
                         }
 
                         //var itemStorage = _context.ItemStorages.Where(x => x.CartonNo == pickListItem.CartonNo).First();
-                        
+
                         try
                         {
                             var itemStorage = await _mediator.Send(new GetItemByBarCodeRequest()
@@ -100,7 +100,7 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
                                 Success = false,
                                 Error = e.Message
                             });
-                        }                     
+                        }
 
                         _context.SaveChanges();
 
@@ -130,42 +130,28 @@ namespace TransnationalLanka.Rms.Mobile.Services.PickList
 
         }
 
-        public async Task<bool> MarkAsDeletedFromDevice(List<PickListMarkDeleteDto> pickListMarkDeleteDtos)
+        public async Task<bool> MarkAsDeletedFromDevice(PickListMarkDeleteDto pickListMarkDeleteDtos)
         {
 
-            var result = new List<MarkDeletedFromDeviceResult>();
+            var result = _context.PickLists.Where(p => p.PickListNo == pickListMarkDeleteDtos.PickListNo);
 
-            foreach (var pickListMarkDeleteDtoItem in pickListMarkDeleteDtos)
+            try
             {
-
-                var pickList = await _context.PickLists.Where(p => p.TrackingId == pickListMarkDeleteDtoItem.TrackingId).FirstOrDefaultAsync();
-                try
+                foreach (var pickListMarkDeleteDtoItem in result)
                 {
-                    if (pickList != null)
-                    {
-                        pickList.Deleted = true;
-                        _context.Entry(pickList).State = EntityState.Modified;
+                    pickListMarkDeleteDtoItem.Deleted = true;
 
-                        _context.SaveChanges();
-
-                        result.Add(new MarkDeletedFromDeviceResult()
-                        {
-                            TrackingId = pickListMarkDeleteDtoItem.TrackingId,
-                            Success = true
-                        });
-                    }
                 }
-                catch (Exception ex)
-                {
 
-                    result.Add(new MarkDeletedFromDeviceResult()
-                    {
-                        TrackingId = pickListMarkDeleteDtoItem.TrackingId,
-                        Success = false,
-                        Error = ex.Message
-                    });
-                }
+                _context.SaveChanges();
+
             }
+            catch (Exception ex)
+            {
+                return false;
+
+            }
+
             return true;
 
         }

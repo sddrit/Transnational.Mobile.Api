@@ -35,7 +35,7 @@ namespace TransnationalLanka.Rms.Mobile.WebApi.PickList
             return Results.Ok(pickListItems);
         }
 
-        public static async Task<IResult> MarkAsDeleteFromDevice(List<PickListMarkDeleteDto> pickListItem,
+        public static async Task<IResult> MarkAsDeleteFromDevice(PickListMarkDeleteDto pickListItem,
         [FromServices] IPickListService pickListService)
         {
             var pickListItems = await pickListService.MarkAsDeletedFromDevice(pickListItem);
